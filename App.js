@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
+import React from 'react'
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native'
+import { ProgressSteps, ProgressStep } from 'react-native-progress-steps'
+import Date from './view/date_choose'
 
 const getData = async () => {
   try {
@@ -32,7 +33,7 @@ export default function App() {
         </ProgressStep>
         <ProgressStep label="Second Step">
             <View style={{ alignItems: 'center' }}>
-                <Text>Choose the time period: </Text>
+                <Date> </Date>
             </View>
         </ProgressStep>
         <ProgressStep label="Third Step" onSubmit = {()=> {alert("finish")}} >
