@@ -1,7 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
+
+const getData = async () => {
+  try {
+    const response = await fetch(
+      'https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M&community=SB&longitude=0&latitude=0&start=20170101&end=20170102&format=json'
+    );
+    const json = await response.json()['properties']['parameter']['T2M'];
+    let data = []
+    data[0] = Object.keys(json)
+    for (let i=0; i<time.length; i++){
+      data[1][i] = data[time[i]]
+    }
+    console.log(data)
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 
 export default function App() {
   return (
