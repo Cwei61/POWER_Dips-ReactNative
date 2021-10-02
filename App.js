@@ -86,33 +86,43 @@ const App = () => {
     "Daily",
     "Hourly",
   ];
-  const [start_date, setStartDate] = useState(new Date(1598051730000));
+  
   const [end_date, setEndDate] = useState(new Date(1598051730000));
-  const [mode, setMode] = useState('date');
-  const [show, setShow] = useState(false);
+  
 
+  function useInput() {
 
-  const onStartChange = (event, selectedDate) => {
-    var currentStartDate = selectedDate || start_date;
-    setShow(Platform.OS === 'ios');
-    setStartDate(currentStartDate);
-    console.log(currentStartDate);
-  };
+    const [date, setDate] = useState(new Date(1598051730000));
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
 
-  const onEndChange = (event, selectedDate) => {
-    var currentEndDate = selectedDate || end_date;
-    setShow(Platform.OS === 'ios');
-    setEndDate(currentEndDate);
-  };
+    const onChange = (event, selectedDate) => {
+      const currenDate = selectedDate || date;
+      setShow(Platform.OS === 'ios');
+      setDate(currenDate);
+      console.log(currentDate);
+    };
+    
+    const showMode = (currentMode) => {
+      setShow(true);
+      setMode(currentMode);
+    };
 
-  const showMode = (currentMode) => {
-    setShow(true);
-    setMode(currentMode);
-  };
+    const showDatepicker = () => {
+      showMode('date');
+    };
 
-  const showDatepicker = () => {
-    showMode('date');
-  };
+    return {
+      date,
+      showDatepicker,
+      show,
+      mode,
+      onChange
+    }
+
+  }
+  const input1 = useInput();
+  const input2 = useInput();
 
 
   const data_category = {
@@ -229,7 +239,7 @@ const App = () => {
         {currentStep == 3 ?
           <SafeAreaView style={[styles.step, {}]}>
             {Platform.OS === 'android' ?
-              <Button title="Select Start Date: " onPress={showDatepicker} /> :
+              <Button title="Select Start Date: " onPress={input1.showDatepicker} /> :
               <Text style={{
                 textAlign: "center",
                 color: "blue",
@@ -238,19 +248,19 @@ const App = () => {
               }}>
                 Select Start Date: </Text>
             }
-            {(Platform.OS === 'ios' || show) &&
+            {(Platform.OS === 'ios' || input1.show) &&
               <DateTimePicker
-                testID="dateTimePicker"
-                value={start_date}
-                mode={mode}
+                testID="dateTimePickerStart"
+                value={input1.date}
+                mode={input1.mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onStartChange}
+                onChange={input1.onChange}
               />
             }
 
-            {/*{Platform.OS === 'android' ?
-              <Button title="Select End Date: " onPress={showDatepicker} /> :
+            {Platform.OS === 'android' ?
+              <Button title="Select End Date: " onPress={input2.showDatepicker} /> :
               <Text style={{
                 textAlign: "center",
                 color: "blue",
@@ -259,16 +269,16 @@ const App = () => {
               }}>
                 Select End Date: </Text>
             }
-            {(Platform.OS === 'ios' || show) &&
+            {(Platform.OS === 'ios' || input2.show) &&
               <DateTimePicker
-                testID="dateTimePicker"
-                value={end_date}
-                mode={mode}
+                testID="dateTimePickerEnd"
+                value={input2.date}
+                mode={input2.mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onEndChange}
+                onChange={input2.onChange}
               />
-            }*/}
+            }
           </SafeAreaView>
           : <View></View>
         }
