@@ -6,7 +6,8 @@ import { useState } from 'react';
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 import Date from './view/date_choose'
-import ListViewSelect from 'react-native-list-view-select';
+//import { Select, Option } from 'react-native-select-list';
+
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
@@ -70,6 +71,10 @@ const App = () => {
     "Hour",
   ];
 
+  const a = () => {
+    
+  };
+
   return (
     <View style={styles.container}>
       <View style={{
@@ -131,7 +136,7 @@ const App = () => {
         }
         { currentStep == 2 ?
           <ScrollView style={[styles.step, {}]}>
-            <ListViewSelect list={period_selection} />
+            
           </ScrollView>
             : <View></View>
         }
