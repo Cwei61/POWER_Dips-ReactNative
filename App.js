@@ -13,6 +13,8 @@ import { LineChart, BarChart, PieChart, ProgressChart, ContributionGraph, Stacke
 import MultiSelect from 'react-native-multiple-select';
 
 
+
+
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
 // parameter to call data
@@ -31,6 +33,11 @@ const App = () => {
 
   const getData = async () => {
     try {
+      if(parameter.end_date < parameter.start_date){
+        let tmp = parameter.end_date
+        parameter.end_date = parameter.start_date
+        parameter.start_date = tmp
+      }
       var api_url = ''
       if (parameter.temporal_avg == 'climatology') {
         api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&format=json'
@@ -61,7 +68,7 @@ const App = () => {
       //alert(result)
 
     } catch (error) {
-      console.error(error);
+      result = 'No data found'
     }
   };
 
@@ -361,7 +368,14 @@ const App = () => {
           </ScrollView>
           : <View></View>
         }
-        {currentStep == totalStep ?
+        {currentStep == totalStep && result == 'No data found'?
+          <ScrollView>
+            <Text style={styles.text}> Sorry, we can't get this data for you. Try other parameters.</Text>
+            <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
+          </ScrollView>
+          : <View></View>
+        }        
+        {currentStep == totalStep  && result != 'No data found'?
           <ScrollView>
             <Text style={styles.text}> Result page</Text>
             <Text style={styles.text}> {JSON.stringify(result)}</Text>
