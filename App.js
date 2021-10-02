@@ -8,6 +8,7 @@ import axios from 'axios';
 //import Date from './view/date_choose'
 import SelectDropdown from 'react-native-select-dropdown'
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {LineChart,BarChart,PieChart,ProgressChart,ContributionGraph,StackedBarChart} from "react-native-chart-kit";
 //import { Select, Option } from 'react-native-select-list';
 import MultiSelect from 'react-native-multiple-select';
 
@@ -31,8 +32,8 @@ const App = () => {
   const getData = async () => {
     try {
       var api_url = ''
-      if(parameter.temporal_avg == 'climatology'){
-        api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&format=json'
+      if (parameter.temporal_avg == 'climatology') {
+        api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&format=json'
         //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
       }
       else if(parameter.temporal_avg == 'monthly'){
@@ -49,10 +50,10 @@ const App = () => {
 
       let json_data = json_res['properties']['parameter'][parameter.category];
 
-      let data = [[],[]]
+      let data = [[], []]
       data[0] = Object.keys(json_data)
-      
-      for (let i=0; i<data[0].length; i++){
+
+      for (let i = 0; i < data[0].length; i++) {
         data[1][i] = json_data[data[0][i]]
       }
       
@@ -75,7 +76,7 @@ const App = () => {
         position: 'absolute',
         left: 0,
         top: 0,
-        width: Dimensions.get('window').width * currentStep / (totalStep-1),
+        width: Dimensions.get('window').width * currentStep / (totalStep - 1),
         height: '100%',
         backgroundColor: '#def86a',
         zIndex: -1,
@@ -105,40 +106,66 @@ const App = () => {
   ];
 
   const data_category = {
-    'CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)':'ALLSKY_SFC_SW_DWN',
-    'CERES SYN1deg Clear Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)':'CLRSKY_SFC_SW_DWN',
-    'MERRA-2 Wind Speed at 2 Meters (m/s)':'WS2M',
-    'CERES SYN1deg All Sky Insolation Clearness Index (dimensionless)':'ALLSKY_KT',
-    'CERES SYN1deg All Sky Normalized Insolation Clearness Index (dimensionless)':'ALLSKY_NKT',
-    'CERES SYN1deg All Sky Surface Longwave Downward Irradiance (W/m^2)':'ALLSKY_SFC_LW_DWN',
-    'CERES SYN1deg All Sky Surface PAR Total (W/m^2)':'ALLSKY_SFC_PAR_TOT',
-    'CERES SYN1deg Clear Sky Surface PAR Total (W/m^2)':'CLRSKY_SFC_PAR_TOT',
-    'CERES SYN1deg All Sky Surface UVA Irradiance (W/m^2)':'ALLSKY_SFC_UVA',
-    'CERES SYN1deg All Sky Surface UVB Irradiance (W/m^2)':'ALLSKY_SFC_UVB',
-    'CERES SYN1deg All Sky Surface UV Index (dimensionless':'ALLSKY_SFC_UV_INDEX',
-    'MERRA-2 Temperature at 2 Meters (C)':'T2M',
-    'MERRA-2 Dew/Frost Point at 2 Meters (C)':'T2MDEW',
-    'MERRA-2 Wet Bulb Temperature at 2 Meters (C)':'T2MWET',
-    'MERRA-2 Earth Skin Temperature (C)':'TS',
-    'MERRA-2 Temperature at 2 Meters Range (C)':'T2M_RANGE',
-    'MERRA-2 Temperature at 2 Meters Maximum (C)':'T2M_MAX',
-    'MERRA-2 Temperature at 2 Meters Minimum (C)':'T2M_MIN',
-    'MERRA-2 Specific Humidity at 2 Meters (g/kg)':'QV2M',
-    'MERRA-2 Relative Humidity at 2 Meters (%)':'RH2M',
-    'MERRA-2 Precipitation Corrected (mm)':'PRECTOTCORR',
-    'MERRA-2 Surface Pressure (kPa)':'PS',
-    'MERRA-2 Wind Speed at 10 Meters (m/s)':'WS10M',
-    'MERRA-2 Wind Speed at 10 Meters Maximum (m/s)':'WS10M_MAX',
-    'MERRA-2 Wind Speed at 10 Meters Minimum (m/s)':'WS10M_MIN',
-    'MERRA-2 Wind Speed at 10 Meters Range (m/s)':'WS10M_RANGE',
-    'MERRA-2 Wind Speed at 50 Meters (m/s)':'WS50M',
-    'MERRA-2 Wind Speed at 50 Meters Maximum (m/s)':'WS50M_MAX',
-    'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)':'WS50M_MIN',
-    'MERRA-2 Wind Speed at 50 Meters Range (m/s)':'WS50M_RANGE',
+    'CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)': 'ALLSKY_SFC_SW_DWN',
+    'CERES SYN1deg Clear Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)': 'CLRSKY_SFC_SW_DWN',
+    'MERRA-2 Wind Speed at 2 Meters (m/s)': 'WS2M',
+    'CERES SYN1deg All Sky Insolation Clearness Index (dimensionless)': 'ALLSKY_KT',
+    'CERES SYN1deg All Sky Normalized Insolation Clearness Index (dimensionless)': 'ALLSKY_NKT',
+    'CERES SYN1deg All Sky Surface Longwave Downward Irradiance (W/m^2)': 'ALLSKY_SFC_LW_DWN',
+    'CERES SYN1deg All Sky Surface PAR Total (W/m^2)': 'ALLSKY_SFC_PAR_TOT',
+    'CERES SYN1deg Clear Sky Surface PAR Total (W/m^2)': 'CLRSKY_SFC_PAR_TOT',
+    'CERES SYN1deg All Sky Surface UVA Irradiance (W/m^2)': 'ALLSKY_SFC_UVA',
+    'CERES SYN1deg All Sky Surface UVB Irradiance (W/m^2)': 'ALLSKY_SFC_UVB',
+    'CERES SYN1deg All Sky Surface UV Index (dimensionless': 'ALLSKY_SFC_UV_INDEX',
+    'MERRA-2 Temperature at 2 Meters (C)': 'T2M',
+    'MERRA-2 Dew/Frost Point at 2 Meters (C)': 'T2MDEW',
+    'MERRA-2 Wet Bulb Temperature at 2 Meters (C)': 'T2MWET',
+    'MERRA-2 Earth Skin Temperature (C)': 'TS',
+    'MERRA-2 Temperature at 2 Meters Range (C)': 'T2M_RANGE',
+    'MERRA-2 Temperature at 2 Meters Maximum (C)': 'T2M_MAX',
+    'MERRA-2 Temperature at 2 Meters Minimum (C)': 'T2M_MIN',
+    'MERRA-2 Specific Humidity at 2 Meters (g/kg)': 'QV2M',
+    'MERRA-2 Relative Humidity at 2 Meters (%)': 'RH2M',
+    'MERRA-2 Precipitation Corrected (mm)': 'PRECTOTCORR',
+    'MERRA-2 Surface Pressure (kPa)': 'PS',
+    'MERRA-2 Wind Speed at 10 Meters (m/s)': 'WS10M',
+    'MERRA-2 Wind Speed at 10 Meters Maximum (m/s)': 'WS10M_MAX',
+    'MERRA-2 Wind Speed at 10 Meters Minimum (m/s)': 'WS10M_MIN',
+    'MERRA-2 Wind Speed at 10 Meters Range (m/s)': 'WS10M_RANGE',
+    'MERRA-2 Wind Speed at 50 Meters (m/s)': 'WS50M',
+    'MERRA-2 Wind Speed at 50 Meters Maximum (m/s)': 'WS50M_MAX',
+    'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)': 'WS50M_MIN',
+    'MERRA-2 Wind Speed at 50 Meters Range (m/s)': 'WS50M_RANGE',
   }
-
-  const [end_date, setEndDate] = useState(new Date(1598051730000));
   
+
+
+  //parameter about graph
+  const screenWidth = Dimensions.get("window").width;
+  const chartData = {
+    labels: ["January", "February", "March", "April", "May", "June"],
+    datasets: [
+      {
+        data: [20, 45, 28, 80, 99, 43],
+        color: (opacity = 1) => `rgba(30,144,255,${opacity})`, // optional
+        strokeWidth: 2 // optional
+      }
+    ],
+    legend: ["Solar Power (W/m^2)"] // optional
+  };
+  
+  const chartConfig = {
+    backgroundGradientFrom: "#FCFCFC",
+    backgroundGradientFromOpacity: 1,
+    backgroundGradientTo: "#FCFCFC",
+    backgroundGradientToOpacity: 1,
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    strokeWidth: 2, // optional, default 3
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false // optional
+  };
+
+  //parameter for date picker
   function useInput(ID) {
     const [date, setDate] = useState(new Date(1598051730000));
     const [mode, setMode] = useState('date');
@@ -151,7 +178,7 @@ const App = () => {
       let y=currentDate.split('-')[0], m=currentDate.split('-')[1], d=currentDate.split('-')[2]
       ID == 0 ? parameter.start_date = y+m+d : parameter.end_date = y+m+d;
     };
-    
+
     const showMode = (currentMode) => {
       setShow(true);
       setMode(currentMode);
@@ -175,27 +202,25 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      { currentStep > 0 && currentStep < totalStep?
+      {currentStep > 0 && currentStep < totalStep ?
         <View style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
           <View style={progressBarStyle()}></View>
           <Text style={{
             fontSize: 30,
-          }}>{currentStep} / {totalStep-1} </Text>
+          }}>{currentStep} / {totalStep - 1} </Text>
         </View>
-         : <View></View>
+        : <View></View>
       }
       <View style={{ padding: 10, flex: 1 }}>
         {currentStep == 0 ?
-          <View>
-            <Text style={styles.text}> The Menu </Text>
-            <TouchableOpacity style={styles.bottomButton} >
-              <Button onPress={ setCurrentStep.bind(this, currentStep+1)} title="Start" />
-            </TouchableOpacity>
-          </View>
-            : <View></View>
+          <ScrollView>
+            <Text style={styles.text}> Menu </Text>
+            <Button onPress={setCurrentStep.bind(this, currentStep + 1)} title="Start" />
+          </ScrollView>
+          : <View></View>
         }
         {currentStep == 1 ?
           <View style={styles.step}>
@@ -247,7 +272,7 @@ const App = () => {
         }
         {currentStep == 2 ?
           <ScrollView style={[styles.step, {}]}>
-            <Text style={styles.text}>Please choose a Temporal Average: </Text>
+            <Text style={styles.text}>Please choose a Temporal Resolution: </Text>
             <SelectDropdown
               data={period_selection}
               onSelect={(selectedItem, index) => {
@@ -261,7 +286,7 @@ const App = () => {
               }}
             />
           </ScrollView>
-            : <View></View>
+          : <View></View>
         }
         {currentStep == 3 ?
           <SafeAreaView style={[styles.step, {}]}>
@@ -309,13 +334,13 @@ const App = () => {
           </SafeAreaView>
           : <View></View>
         }
-        { currentStep == 4 ?
+        {currentStep == 4 ?
           <ScrollView style={[styles.step, {}]}>
             <Text style={styles.text}>Select Parameters: </Text>
             <SelectDropdown
               data={Object.keys(data_category)}
               onSelect={(selectedItem, index) => {
-                parameter.category = data_category[selectedItem]                
+                parameter.category = data_category[selectedItem]
               }}
               buttonTextAfterSelection={(selectedItem, index) => {
                 return selectedItem
@@ -327,21 +352,41 @@ const App = () => {
           </ScrollView>
           : <View></View>
         }
-        { currentStep == totalStep ?
-          <View>
-            <Text style={styles.text}> Result page </Text>
-            <Text style={styles.text}> { JSON.stringify(result) }</Text>
-            <Button style={styles.bottomButton} onPress={ setCurrentStep.bind(this, 0)} title="Menu" />        
-          </View>
+        {currentStep == totalStep ?
+          <ScrollView>
+            <Text style={styles.text}> Result page</Text>
+            <Text style={styles.text}> {JSON.stringify(result)}</Text>
+            <ScrollView horizontal={true}>
+              <LineChart
+                data={
+                  {
+                    labels: [result[0]],
+                    datasets:[
+                      {
+                        data: [result[1]],
+                        color: (opacity = 1) => `rgba(30,144,255,${opacity})`, // optional
+                        strokeWidth: 2 // optional
+                      }
+                    ],
+                    legend: ["Solar Power (W/m^2)"] // optional
+                  }
+                }
+                width = {screenWidth}
+                height={220}
+                chartConfig={chartConfig}
+              />
+            </ScrollView>
+            <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
+          </ScrollView>
           : <View></View>
         }
       </View>
       <View style={{
-          justifyContent: 'space-between',
-          flexDirection: 'row',
-          margin: 20,
-        }}>
-        {currentStep > 0 && currentStep < totalStep  ?
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        margin: 20,
+      }}>
+        {currentStep > 0 && currentStep < totalStep ?
           <TouchableOpacity style={styles.previousButton}
             onPress={() => {
               if (currentStep > 0) {
@@ -352,7 +397,7 @@ const App = () => {
           </TouchableOpacity> :
           <View></View>
         }
-        { currentStep>0 && currentStep<totalStep-1 ?
+        {currentStep > 0 && currentStep < totalStep - 1 ?
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
             onPress={() => {
               if (currentStep < totalStep) {
@@ -377,9 +422,9 @@ const App = () => {
             }}>
             <Text>Next</Text>
           </TouchableOpacity>
-          : 
-          <View> 
-            { currentStep == totalStep-1 ?
+          :
+          <View>
+            {currentStep == totalStep - 1 ?
               <TouchableOpacity style={styles.fetchButton}
                 onPress={() => {
                   getData().then(() => {
@@ -387,7 +432,7 @@ const App = () => {
                   })
                 }}>
                 <Text>Fetch</Text>
-              </TouchableOpacity>:
+              </TouchableOpacity> :
               <View></View>
             }
           </View>
