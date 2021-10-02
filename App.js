@@ -25,12 +25,22 @@ const parameter = {
 
 const getData = async () => {
   try {
-    api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters=T2M&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
-    
-    const response = await fetch(api_url);
+    var api_url = ''
+    if(parameter.temporal_avg == 'climatology'){
+      api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&format=json'
+      //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
+    }
+    else{
+      api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
+    }
     alert(api_url)
-    const json_res = await response.json()
-    let json_data = json_res['properties']['parameter']['T2M'];
+    //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
+
+    const response = await fetch(api_url); 
+    const json_res = await response.json();
+
+    let json_data = json_res['properties']['parameter'][parameter.category];
+
     let data = [[],[]]
     data[0] = Object.keys(json_data)
     
@@ -288,7 +298,7 @@ const App = () => {
             <SelectDropdown
               data={Object.keys(data_category)}
               onSelect={(selectedItem, index) => {
-                parameter.category = data_category[selectedItem]
+                parameter.category = data_category[selectedItem]                
               }}
               buttonTextAfterSelection={(selectedItem, index) => {
                 return selectedItem
