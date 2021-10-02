@@ -9,6 +9,7 @@ import axios from 'axios';
 import SelectDropdown from 'react-native-select-dropdown'
 import DateTimePicker from '@react-native-community/datetimepicker';
 //import { Select, Option } from 'react-native-select-list';
+import MultiSelect from 'react-native-multiple-select';
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
@@ -23,6 +24,10 @@ const parameter = {
   category: '', 
 }
 
+const result = {
+  'test': [1,2]
+}
+
 const getData = async () => {
   try {
     var api_url = ''
@@ -30,10 +35,13 @@ const getData = async () => {
       api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&format=json'
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
     }
+    else if(parameter.temporal_avg == 'monthly'){
+      api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=2016&end=2017&format=json'
+    }
     else{
       api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
     }
-    alert(api_url)
+    alert(parameter.start_date)
     //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
 
     const response = await fetch(api_url); 
@@ -58,7 +66,7 @@ const getData = async () => {
 const App = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalStep = 4;
+  const totalStep = 5;
   const [canPass, setCanPass] = useState(false);
 
   const progressBarStyle = () => {
@@ -110,7 +118,7 @@ const App = () => {
       const currenDate = selectedDate || date;
       setShow(Platform.OS === 'ios');
       setDate(currenDate);
-      console.log(currentDate);
+      alert(currentDate);
     };
     
     const showMode = (currentMode) => {
@@ -127,9 +135,9 @@ const App = () => {
       showDatepicker,
       show,
       mode,
-      onChange
+      onChange,
+      currentDate
     }
-
   }
   const input1 = useInput();
   const input2 = useInput();
@@ -167,6 +175,8 @@ const App = () => {
     'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)':'WS50M_MIN',
     'MERRA-2 Wind Speed at 50 Meters Range (m/s)':'WS50M_RANGE',
   }
+
+  let a='1'
 
   return (
     <View style={styles.container}>
@@ -265,7 +275,6 @@ const App = () => {
                 mode={input1.mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={input1.onChange}
               />
             }
 
@@ -292,7 +301,7 @@ const App = () => {
           </SafeAreaView>
           : <View></View>
         }
-        { currentStep == totalStep ?
+        { currentStep == 4 ?
           <ScrollView style={[styles.step, {}]}>
             <Text style={styles.text}>Please choose a ???: </Text>
             <SelectDropdown
@@ -310,13 +319,20 @@ const App = () => {
           </ScrollView>
           : <View></View>
         }
+        { currentStep == totalStep ?
+          <ScrollView>
+            <Text style={styles.text}> Result page </Text> 
+            <Text style={styles.text}> { JSON.stringify(result) }</Text>            
+          </ScrollView>
+          : <View></View>
+        }
       </View>
       <View style={{
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        margin: 20,
-      }}>
-        {currentStep != 1 ?
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          margin: 20,
+        }}>
+        {currentStep != 1 && currentStep != totalStep  ?
           <TouchableOpacity style={styles.previousButton}
             onPress={() => {
               if (currentStep > 1) {
@@ -327,38 +343,45 @@ const App = () => {
           </TouchableOpacity> :
           <View></View>
         }
-        { currentStep != totalStep ? 
+        {  currentStep != totalStep && currentStep != totalStep-1 ?
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
-          onPress={() => {
-            //setCanPass(false);
-            if (currentStep < totalStep) {
-              setCurrentStep(currentStep + 1);
-            }
-            _retrieveData = async () => {
-              try {
-                const lat = await AsyncStorage.getItem('currentLocationLat');
-                if (lat == null) {
-                  console.log("Lat is null");
-                }
-                const lng = await AsyncStorage.getItem('currentLocationLng');
-                if (lng == null) {
-                  console.log("Lng is null");
-                }
-                //Alert.alert('GEOMETRY', lat + ' / ' + lng);
-              } catch (error) {
-                console.log(error);
+            onPress={() => {
+              //setCanPass(false);
+              if (currentStep < totalStep) {
+                setCurrentStep(currentStep + 1);
               }
-            }
-            _retrieveData();
-          }}>
+              _retrieveData = async () => {
+                try {
+                  const lat = await AsyncStorage.getItem('currentLocationLat');
+                  if (lat == null) {
+                    console.log("Lat is null");
+                  }
+                  const lng = await AsyncStorage.getItem('currentLocationLng');
+                  if (lng == null) {
+                    console.log("Lng is null");
+                  }
+                  //Alert.alert('GEOMETRY', lat + ' / ' + lng);
+                } catch (error) {
+                  console.log(error);
+                }
+              }
+              _retrieveData();
+            }}>
             <Text>Next</Text>
-          </TouchableOpacity> :
-          <TouchableOpacity style={styles.fetchButton}
-          onPress={() => {
-            getData()
-          }}>
-            <Text>Fetch</Text>
           </TouchableOpacity>
+          : 
+          <View> 
+            { currentStep == totalStep-1 ?
+              <TouchableOpacity style={styles.fetchButton}
+                onPress={() => {
+                  getData()
+                  setCurrentStep(currentStep + 1)
+                }}>
+                <Text>Fetch</Text>
+              </TouchableOpacity>:
+              <View></View>
+            }
+          </View>
         }
       </View>
     </View>
