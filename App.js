@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions } from 'react-native';
+import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions, Platform, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useState } from 'react';
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
-import Date from './view/date_choose'
+//import Date from './view/date_choose'
 import SelectDropdown from 'react-native-select-dropdown'
+import DateTimePicker from '@react-native-community/datetimepicker';
 //import { Select, Option } from 'react-native-select-list';
 
 
@@ -29,7 +30,7 @@ const getData = async () => {
     const json = await response.json()['properties']['parameter']['T2M'];
     let data = []
     data[0] = Object.keys(json)
-    for (let i=0; i<time.length; i++){
+    for (let i = 0; i < time.length; i++) {
       data[1][i] = data[time[i]]
     }
     console.log(data)
@@ -40,7 +41,7 @@ const getData = async () => {
 };
 
 const App = () => {
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const totalStep = 4;
   const [canPass, setCanPass] = useState(false);
@@ -49,27 +50,27 @@ const App = () => {
 
     if (currentStep < totalStep) {
       return {
-        position: 'absolute', 
-        left: 0, 
-        top: 0, 
-        width: Dimensions.get('window').width * currentStep / totalStep, 
-        height: '100%', 
-        backgroundColor: '#def86a', 
-        zIndex: -1, 
-        borderBottomLeftRadius: 10, 
-        borderTopLeftRadius: 10, 
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: Dimensions.get('window').width * currentStep / totalStep,
+        height: '100%',
+        backgroundColor: '#def86a',
+        zIndex: -1,
+        borderBottomLeftRadius: 10,
+        borderTopLeftRadius: 10,
       };
-    } 
+    }
     else {
       return {
-        position: 'absolute', 
-        left: 0, 
-        top: 0, 
-        width: '100%', 
-        height: '100%', 
-        backgroundColor: '#def86a', 
-        zIndex: -1, 
-        borderRadius: 10, 
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#def86a',
+        zIndex: -1,
+        borderRadius: 10,
       };
     }
   };
@@ -80,33 +81,59 @@ const App = () => {
     "Daily",
     "Hourly",
   ];
+  const [start_date, setStartDate] = useState(new Date(1598051730000));
+  const [end_date, setEndDate] = useState(new Date(1598051730000));
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || start_date;
+    setShow(Platform.OS === 'ios');
+    setStartDate(currentDate);
+  };
+
+  const onEndChange = (event, selectedDate) => {
+    const currentDate = selectedDate || end_date;
+    setShow(Platform.OS === 'ios');
+    setEndDate(currentDate);
+  };
+  
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+  };
+
 
   return (
     <View style={styles.container}>
       <View style={{
-        justifyContent: 'center', 
-        alignItems: 'center', 
+        justifyContent: 'center',
+        alignItems: 'center',
       }}>
-        <View style={ progressBarStyle()}></View>
+        <View style={progressBarStyle()}></View>
         <Text style={{
-          fontSize: 30, 
+          fontSize: 30,
         }}>{currentStep} / {totalStep} </Text>
       </View>
-      <View style={{padding: 10, flex: 1}}>
-        { currentStep == 1 ? 
+      <View style={{ padding: 10, flex: 1 }}>
+        {currentStep == 1 ?
           <View style={styles.step}>
             <Text style={styles.text}>Please choose your location: </Text>
             <GooglePlacesAutocomplete
               style={{
-                paddingRight: 10, 
-                paddingLeft: 10, 
+                paddingRight: 10,
+                paddingLeft: 10,
               }}
               placeholder="Search location"
               query={{
                 key: GOOGLE_PLACES_API_KEY,
                 language: 'zh-TW', // language of the results
-                currentLocation: true, 
-                components: 'country:tw', 
+                currentLocation: true,
+                components: 'country:tw',
               }}
               onPress={(data, details = null) => {
                 //Alert.alert("Location", JSON.stringify(details.geometry));
@@ -119,7 +146,7 @@ const App = () => {
                       try {
                         await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
                         await AsyncStorage.setItem('currentLocationLng', response.data.result.geometry.location.lng.toString());
-                      } catch(error) {
+                      } catch (error) {
                         console.log('Error while storing current location');
                       }
                     };
@@ -130,17 +157,17 @@ const App = () => {
                     console.log(error);
                   });
               }}
-              onFail={(error) => {console.error(error); Alert.alert("Error", error)}}
+              onFail={(error) => { console.error(error); Alert.alert("Error", error) }}
               requestUrl={{
                 url:
                   'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
                 useOnPlatform: 'web',
               }} // this in only required for use on the web. See https://git.io/JflFv more for details.
             />
-          </View> 
+          </View>
           : <View></View>
         }
-        { currentStep == 2 ?
+        {currentStep == 2 ?
           <ScrollView style={[styles.step, {}]}>
             <Text style={styles.text}>Please choose a Temporal Average: </Text>
             <SelectDropdown
@@ -160,65 +187,105 @@ const App = () => {
               }}
             />
           </ScrollView>
-            : <View></View>
+          : <View></View>
         }
-        { currentStep == 3 ?
-          <ScrollView style={[styles.step, {}]}>
-            <Date> </Date>
-          </ScrollView>
-            : <View></View>
+        {currentStep == 3 ?
+          <SafeAreaView style={[styles.step, {}]}>
+            {Platform.OS === 'android' ?
+              <Button title="Select Start Date: " onPress={showDatepicker} /> :
+              <Text style={{
+                textAlign: "center",
+                color: "blue",
+                fontWeight: "bold",
+                fontSize: 20,
+              }}>
+                Select Start Date: </Text>
+            }
+            {(Platform.OS === 'ios' || show) &&
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={start_date}
+                mode={mode}
+                is24Hour={true}
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onChange}
+              />
+            }
+
+            {Platform.OS === 'android' ?
+              <Button title="Select End Date: " onPress={showDatepicker} /> :
+              <Text style={{
+                textAlign: "center",
+                color: "blue",
+                fontWeight: "bold",
+                fontSize: 20,
+              }}>
+                Select End Date: </Text>
+            }
+            {(Platform.OS === 'ios' || show) &&
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={end_date}
+                mode={mode}
+                is24Hour={true}
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={onEndChange}
+              />
+            }
+          </SafeAreaView>
+          : <View></View>
         }
-        { currentStep == totalStep ?
+        {currentStep == totalStep ?
           <View style={styles.step}>
             <Text>This is the content within step 3!</Text>
           </View>
-            : <View></View>
+          : <View></View>
         }
       </View>
       <View style={{
-        justifyContent: 'space-between', 
-        flexDirection: 'row', 
-        margin: 20, 
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        margin: 20,
       }}>
-        { currentStep != 1 ? 
-          <TouchableOpacity style={styles.previousButton} 
-          onPress={() => {
-            if (currentStep > 1) {
-              setCurrentStep(currentStep - 1);
-            }
-          }}>
-            <Text style={{color: '#faf2a1'}}>Back</Text>
-          </TouchableOpacity> : 
+        {currentStep != 1 ?
+          <TouchableOpacity style={styles.previousButton}
+            onPress={() => {
+              if (currentStep > 1) {
+                setCurrentStep(currentStep - 1);
+              }
+            }}>
+            <Text style={{ color: '#faf2a1' }}>Back</Text>
+          </TouchableOpacity> :
           <View></View>
         }
-        { currentStep != totalStep ? 
-          <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} disabled={!canPass}
-          onPress={() => {
-            //setCanPass(false);
-            if (currentStep < totalStep) {
-              setCurrentStep(currentStep + 1);
-            }
-            _retrieveData = async () => {
-              try {
-                const lat = await AsyncStorage.getItem('currentLocationLat');
-                if (lat == null) {
-                  console.log("Lat is null");
-                }
-                const lng = await AsyncStorage.getItem('currentLocationLng');
-                if (lng == null) {
-                  console.log("Lng is null");
-                }
-                //Alert.alert('GEOMETRY', lat + ' / ' + lng);
-              } catch (error) {
-                console.log(error);
+        {currentStep != totalStep ?
+          <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
+            onPress={() => {
+              //setCanPass(false);
+              if (currentStep < totalStep) {
+                setCurrentStep(currentStep + 1);
               }
-            };
-            _retrieveData();
-          }}>
+              _retrieveData = async () => {
+                try {
+                  const lat = await AsyncStorage.getItem('currentLocationLat');
+                  if (lat == null) {
+                    console.log("Lat is null");
+                  }
+                  const lng = await AsyncStorage.getItem('currentLocationLng');
+                  if (lng == null) {
+                    console.log("Lng is null");
+                  }
+                  //Alert.alert('GEOMETRY', lat + ' / ' + lng);
+                } catch (error) {
+                  console.log(error);
+                }
+              };
+              _retrieveData();
+            }}>
             <Text>Next</Text>
-          </TouchableOpacity> : 
+          </TouchableOpacity> :
           <TouchableOpacity style={styles.fetchButton}
-          onPress={() => { }}>
+            onPress={() => { }}>
             <Text>Fetch</Text>
           </TouchableOpacity>
         }
@@ -237,47 +304,47 @@ const styles = StyleSheet.create({
     //backgroundColor: '#ecf0f1',
   },
   text: {
-    paddingBottom: 10, 
-    paddingRight: 10, 
-  }, 
+    paddingBottom: 10,
+    paddingRight: 10,
+  },
   step: {
-    flex: 1, 
-  }, 
+    flex: 1,
+  },
   nextButton: {
-    backgroundColor: '#def86a', 
-    paddingTop: 15, 
-    paddingBottom: 15, 
-    paddingRight: 20, 
-    paddingLeft: 20, 
-    borderRadius: 10, 
-    overflow: 'hidden', 
-  },  
+    backgroundColor: '#def86a',
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingRight: 20,
+    paddingLeft: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
   nextButtonDisabled: {
-    backgroundColor: '#bed84a', 
-    paddingTop: 15, 
-    paddingBottom: 15, 
-    paddingRight: 20, 
-    paddingLeft: 20, 
-    borderRadius: 10, 
-    overflow: 'hidden', 
-  }, 
+    backgroundColor: '#bed84a',
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingRight: 20,
+    paddingLeft: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
   previousButton: {
-    backgroundColor: '#6a8d92', 
-    paddingTop: 15, 
-    paddingBottom: 15, 
-    paddingRight: 20, 
-    paddingLeft: 20, 
-    borderRadius: 10, 
-    overflow: 'hidden', 
-  }, 
+    backgroundColor: '#6a8d92',
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingRight: 20,
+    paddingLeft: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
   fetchButton: {
-    backgroundColor: '#def86a', 
-    paddingTop: 15, 
-    paddingBottom: 15, 
-    paddingRight: 20, 
-    paddingLeft: 20, 
-    borderRadius: 10, 
-    overflow: 'hidden', 
+    backgroundColor: '#def86a',
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingRight: 20,
+    paddingLeft: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
   }
 });
 
