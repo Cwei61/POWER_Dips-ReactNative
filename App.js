@@ -86,18 +86,20 @@ const App = () => {
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || start_date;
+
+  const onStartChange = (event, selectedDate) => {
+    var currentStartDate = selectedDate || start_date;
     setShow(Platform.OS === 'ios');
-    setStartDate(currentDate);
+    setStartDate(currentStartDate);
+    console.log(currentStartDate);
   };
 
   const onEndChange = (event, selectedDate) => {
-    const currentDate = selectedDate || end_date;
+    var currentEndDate = selectedDate || end_date;
     setShow(Platform.OS === 'ios');
-    setEndDate(currentDate);
+    setEndDate(currentEndDate);
   };
-  
+
   const showMode = (currentMode) => {
     setShow(true);
     setMode(currentMode);
@@ -208,11 +210,11 @@ const App = () => {
                 mode={mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={onChange}
+                onChange={onStartChange}
               />
             }
 
-            {Platform.OS === 'android' ?
+            {/*{Platform.OS === 'android' ?
               <Button title="Select End Date: " onPress={showDatepicker} /> :
               <Text style={{
                 textAlign: "center",
@@ -231,7 +233,7 @@ const App = () => {
                 display={Platform.OS === "ios" ? "spinner" : "default"}
                 onChange={onEndChange}
               />
-            }
+            }*/}
           </SafeAreaView>
           : <View></View>
         }
