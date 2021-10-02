@@ -15,25 +15,30 @@ const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
 // parameter to call data
 const parameter = {
-  longitude: '',
-  latitude: '',
+  longitude: 0,
+  latitude: 0,
   temporal_avg: '',
   start_date: '',
   end_date: '',
+  category: '', 
 }
 
 const getData = async () => {
   try {
-    const response = await fetch(
-      'https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M&community=SB&longitude=0&latitude=0&start=20170101&end=20170102&format=json'
-    );
-    const json = await response.json()['properties']['parameter']['T2M'];
-    let data = []
-    data[0] = Object.keys(json)
-    for (let i = 0; i < time.length; i++) {
-      data[1][i] = data[time[i]]
+    api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters=T2M&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
+    
+    const response = await fetch(api_url);
+    alert(api_url)
+    const json_res = await response.json()
+    let json_data = json_res['properties']['parameter']['T2M'];
+    let data = [[],[]]
+    data[0] = Object.keys(json_data)
+    
+    for (let i=0; i<data[0].length; i++){
+      data[1][i] = json_data[data[0][i]]
     }
-    console.log(data)
+    alert(data)
+
     return data;
   } catch (error) {
     console.error(error);
@@ -77,7 +82,7 @@ const App = () => {
 
   const period_selection = [
     "Climatology",
-    "Monthly & Annual",
+    "Monthly",
     "Daily",
     "Hourly",
   ];
@@ -109,6 +114,39 @@ const App = () => {
     showMode('date');
   };
 
+
+  const data_category = {
+    'CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)':'ALLSKY_SFC_SW_DWN',
+    'CERES SYN1deg Clear Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)':'CLRSKY_SFC_SW_DWN',
+    'MERRA-2 Wind Speed at 2 Meters (m/s)':'WS2M',
+    'CERES SYN1deg All Sky Insolation Clearness Index (dimensionless)':'ALLSKY_KT',
+    'CERES SYN1deg All Sky Normalized Insolation Clearness Index (dimensionless)':'ALLSKY_NKT',
+    'CERES SYN1deg All Sky Surface Longwave Downward Irradiance (W/m^2)':'ALLSKY_SFC_LW_DWN',
+    'CERES SYN1deg All Sky Surface PAR Total (W/m^2)':'ALLSKY_SFC_PAR_TOT',
+    'CERES SYN1deg Clear Sky Surface PAR Total (W/m^2)':'CLRSKY_SFC_PAR_TOT',
+    'CERES SYN1deg All Sky Surface UVA Irradiance (W/m^2)':'ALLSKY_SFC_UVA',
+    'CERES SYN1deg All Sky Surface UVB Irradiance (W/m^2)':'ALLSKY_SFC_UVB',
+    'CERES SYN1deg All Sky Surface UV Index (dimensionless':'ALLSKY_SFC_UV_INDEX',
+    'MERRA-2 Temperature at 2 Meters (C)':'T2M',
+    'MERRA-2 Dew/Frost Point at 2 Meters (C)':'T2MDEW',
+    'MERRA-2 Wet Bulb Temperature at 2 Meters (C)':'T2MWET',
+    'MERRA-2 Earth Skin Temperature (C)':'TS',
+    'MERRA-2 Temperature at 2 Meters Range (C)':'T2M_RANGE',
+    'MERRA-2 Temperature at 2 Meters Maximum (C)':'T2M_MAX',
+    'MERRA-2 Temperature at 2 Meters Minimum (C)':'T2M_MIN',
+    'MERRA-2 Specific Humidity at 2 Meters (g/kg)':'QV2M',
+    'MERRA-2 Relative Humidity at 2 Meters (%)':'RH2M',
+    'MERRA-2 Precipitation Corrected (mm)':'PRECTOTCORR',
+    'MERRA-2 Surface Pressure (kPa)':'PS',
+    'MERRA-2 Wind Speed at 10 Meters (m/s)':'WS10M',
+    'MERRA-2 Wind Speed at 10 Meters Maximum (m/s)':'WS10M_MAX',
+    'MERRA-2 Wind Speed at 10 Meters Minimum (m/s)':'WS10M_MIN',
+    'MERRA-2 Wind Speed at 10 Meters Range (m/s)':'WS10M_RANGE',
+    'MERRA-2 Wind Speed at 50 Meters (m/s)':'WS50M',
+    'MERRA-2 Wind Speed at 50 Meters Maximum (m/s)':'WS50M_MAX',
+    'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)':'WS50M_MIN',
+    'MERRA-2 Wind Speed at 50 Meters Range (m/s)':'WS50M_RANGE',
+  }
 
   return (
     <View style={styles.container}>
@@ -143,7 +181,8 @@ const App = () => {
                 axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
                   .then((response) => {
                     //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
-
+                    parameter.latitude = response.data.result.geometry.location.lat
+                    parameter.longitude = response.data.result.geometry.location.lng
                     _storeData = async () => {
                       try {
                         await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
@@ -175,21 +214,17 @@ const App = () => {
             <SelectDropdown
               data={period_selection}
               onSelect={(selectedItem, index) => {
-                console.log(selectedItem, index)
+                parameter.temporal_avg = selectedItem.toLowerCase();
               }}
               buttonTextAfterSelection={(selectedItem, index) => {
-                // text represented after item is selected
-                // if data array is an array of objects then return selectedItem.property to render after item is selected
                 return selectedItem
               }}
               rowTextForSelection={(item, index) => {
-                // text represented for each item in dropdown
-                // if data array is an array of objects then return item.property to represent item in dropdown
                 return item
               }}
             />
           </ScrollView>
-          : <View></View>
+            : <View></View>
         }
         {currentStep == 3 ?
           <SafeAreaView style={[styles.step, {}]}>
@@ -237,10 +272,22 @@ const App = () => {
           </SafeAreaView>
           : <View></View>
         }
-        {currentStep == totalStep ?
-          <View style={styles.step}>
-            <Text>This is the content within step 3!</Text>
-          </View>
+        { currentStep == totalStep ?
+          <ScrollView style={[styles.step, {}]}>
+            <Text style={styles.text}>Please choose a ???: </Text>
+            <SelectDropdown
+              data={Object.keys(data_category)}
+              onSelect={(selectedItem, index) => {
+                parameter.category = data_category[selectedItem]
+              }}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                return selectedItem
+              }}
+              rowTextForSelection={(item, index) => {
+                return item
+              }}
+            />
+          </ScrollView>
           : <View></View>
         }
       </View>
@@ -260,34 +307,36 @@ const App = () => {
           </TouchableOpacity> :
           <View></View>
         }
-        {currentStep != totalStep ?
+        { currentStep != totalStep ? 
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
-            onPress={() => {
-              //setCanPass(false);
-              if (currentStep < totalStep) {
-                setCurrentStep(currentStep + 1);
-              }
-              _retrieveData = async () => {
-                try {
-                  const lat = await AsyncStorage.getItem('currentLocationLat');
-                  if (lat == null) {
-                    console.log("Lat is null");
-                  }
-                  const lng = await AsyncStorage.getItem('currentLocationLng');
-                  if (lng == null) {
-                    console.log("Lng is null");
-                  }
-                  //Alert.alert('GEOMETRY', lat + ' / ' + lng);
-                } catch (error) {
-                  console.log(error);
+          onPress={() => {
+            //setCanPass(false);
+            if (currentStep < totalStep) {
+              setCurrentStep(currentStep + 1);
+            }
+            _retrieveData = async () => {
+              try {
+                const lat = await AsyncStorage.getItem('currentLocationLat');
+                if (lat == null) {
+                  console.log("Lat is null");
                 }
-              };
-              _retrieveData();
-            }}>
+                const lng = await AsyncStorage.getItem('currentLocationLng');
+                if (lng == null) {
+                  console.log("Lng is null");
+                }
+                //Alert.alert('GEOMETRY', lat + ' / ' + lng);
+              } catch (error) {
+                console.log(error);
+              }
+            }
+            _retrieveData();
+          }}>
             <Text>Next</Text>
           </TouchableOpacity> :
           <TouchableOpacity style={styles.fetchButton}
-            onPress={() => { }}>
+          onPress={() => {
+            getData()
+          }}>
             <Text>Fetch</Text>
           </TouchableOpacity>
         }
