@@ -1,45 +1,66 @@
 import * as React from 'react';
-import { Text, View, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions } from 'react-native';
+import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions } from 'react-native';
 import Constants from 'expo-constants';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useState } from 'react';
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
+import Date from './view/date_choose'
 
-const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE'; // never save your real api key in a snack!
+const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
+
+const getData = async () => {
+  try {
+    const response = await fetch(
+      'https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M&community=SB&longitude=0&latitude=0&start=20170101&end=20170102&format=json'
+    );
+    const json = await response.json()['properties']['parameter']['T2M'];
+    let data = []
+    data[0] = Object.keys(json)
+    for (let i=0; i<time.length; i++){
+      data[1][i] = data[time[i]]
+    }
+    console.log(data)
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const App = () => {
   
   const [currentStep, setCurrentStep] = useState(1);
   const totalStep = 3;
+  const [canPass, setCanPass] = useState(false);
 
   const progressBarStyle = () => {
 
     if (currentStep < totalStep) {
       return {
-      position: 'absolute', 
-      left: 0, 
-      top: 0, 
-      width: Dimensions.get('window').width * currentStep / totalStep, 
-      height: '100%', 
-      backgroundColor: '#def86a', 
-      zIndex: -1, 
-      borderBottomLeftRadius: 10, 
-      borderTopLeftRadius: 10, 
-    };
-  }
-
-    return {
-      position: 'absolute', 
-      left: 0, 
-      top: 0, 
-      width: Dimensions.get('window').width * currentStep / totalStep, 
-      //width: 50, 
-      height: '100%', 
-      backgroundColor: '#def86a', 
-      zIndex: -1, 
-    };
-  }
+        position: 'absolute', 
+        left: 0, 
+        top: 0, 
+        width: Dimensions.get('window').width * currentStep / totalStep, 
+        height: '100%', 
+        backgroundColor: '#def86a', 
+        zIndex: -1, 
+        borderBottomLeftRadius: 10, 
+        borderTopLeftRadius: 10, 
+      };
+    } 
+    else {
+      return {
+        position: 'absolute', 
+        left: 0, 
+        top: 0, 
+        width: '100%', 
+        height: '100%', 
+        backgroundColor: '#def86a', 
+        zIndex: -1, 
+        borderRadius: 10, 
+      };
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -53,7 +74,7 @@ const App = () => {
         }}>{currentStep} / {totalStep} </Text>
       </View>
       <View style={{padding: 10, flex: 1}}>
-        { currentStep == 1 && 
+        { currentStep == 1 ? 
           <View style={styles.step}>
             <Text style={styles.text}>Please choose your location: </Text>
             <GooglePlacesAutocomplete
@@ -61,7 +82,7 @@ const App = () => {
                 paddingRight: 10, 
                 paddingLeft: 10, 
               }}
-              placeholder="Search"
+              placeholder="Search location"
               query={{
                 key: GOOGLE_PLACES_API_KEY,
                 language: 'zh-TW', // language of the results
@@ -73,7 +94,7 @@ const App = () => {
 
                 axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
                   .then((response) => {
-                    Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
+                    //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
 
                     _storeData = async () => {
                       try {
@@ -84,6 +105,7 @@ const App = () => {
                       }
                     };
                     _storeData();
+                    setCanPass(true);
                   })
                   .catch((error) => {
                     console.log(error);
@@ -96,19 +118,22 @@ const App = () => {
                 useOnPlatform: 'web',
               }} // this in only required for use on the web. See https://git.io/JflFv more for details.
             />
+          </View> 
+          : <View></View>
+        }
+        { currentStep == 2 ?
+          <ScrollView style={[styles.step, {}]}>
+            <Date> </Date>
+          </ScrollView>
+            : <View></View>
+        }
+        { currentStep == totalStep ?
+          <View style={styles.step}>
+            <Text>This is the content within step 3!</Text>
           </View>
+            : <View></View>
         }
       </View>
-      { currentStep == 2 && 
-        <View style={styles.step}>
-          <Text>This is the content within step 2!</Text>
-        </View>
-      }
-      { currentStep == totalStep && 
-        <View style={styles.step}>
-          <Text>This is the content within step 3!</Text>
-        </View>
-      }
       <View style={{
         justifyContent: 'space-between', 
         flexDirection: 'row', 
@@ -126,8 +151,9 @@ const App = () => {
           <View></View>
         }
         { currentStep != totalStep ? 
-          <TouchableOpacity style={styles.nextButton}
+          <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} disabled={!canPass}
           onPress={() => {
+            //setCanPass(false);
             if (currentStep < totalStep) {
               setCurrentStep(currentStep + 1);
             }
@@ -141,7 +167,7 @@ const App = () => {
                 if (lng == null) {
                   console.log("Lng is null");
                 }
-                Alert.alert('GEOMETRY', lat + ' / ' + lng);
+                //Alert.alert('GEOMETRY', lat + ' / ' + lng);
               } catch (error) {
                 console.log(error);
               }
@@ -165,7 +191,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     paddingTop: Constants.statusBarHeight + 10,
-    backgroundColor: '#faf2a1', 
+    backgroundColor: '#e3ebff'
+    //backgroundColor: '#faf2a1', 
     //backgroundColor: '#ecf0f1',
   },
   text: {
@@ -177,28 +204,37 @@ const styles = StyleSheet.create({
   }, 
   nextButton: {
     backgroundColor: '#def86a', 
-    paddingTop: 10, 
-    paddingBottom: 10, 
-    paddingRight: 15, 
-    paddingLeft: 15, 
+    paddingTop: 15, 
+    paddingBottom: 15, 
+    paddingRight: 20, 
+    paddingLeft: 20, 
+    borderRadius: 10, 
+    overflow: 'hidden', 
+  },  
+  nextButtonDisabled: {
+    backgroundColor: '#bed84a', 
+    paddingTop: 15, 
+    paddingBottom: 15, 
+    paddingRight: 20, 
+    paddingLeft: 20, 
     borderRadius: 10, 
     overflow: 'hidden', 
   }, 
   previousButton: {
     backgroundColor: '#6a8d92', 
-    paddingTop: 10, 
-    paddingBottom: 10, 
-    paddingRight: 15, 
-    paddingLeft: 15, 
+    paddingTop: 15, 
+    paddingBottom: 15, 
+    paddingRight: 20, 
+    paddingLeft: 20, 
     borderRadius: 10, 
     overflow: 'hidden', 
   }, 
   fetchButton: {
     backgroundColor: '#def86a', 
-    paddingTop: 10, 
-    paddingBottom: 10, 
-    paddingRight: 15, 
-    paddingLeft: 15, 
+    paddingTop: 15, 
+    paddingBottom: 15, 
+    paddingRight: 20, 
+    paddingLeft: 20, 
     borderRadius: 10, 
     overflow: 'hidden', 
   }

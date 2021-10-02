@@ -4,13 +4,13 @@ import CalendarPicker from 'react-native-calendar-picker';
 
 class Date extends React.Component {
     render() {
-      return <div>
+      return <View>
         <Text>Choose the time period: </Text>
         <Text>From: </Text>
         <CalendarPicker />
         <Text>To: </Text>
         <CalendarPicker />
-      </div>;
+      </View>;
     }
 }
 
