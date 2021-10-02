@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 import Date from './view/date_choose'
+import ListViewSelect from 'react-native-list-view-select';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
@@ -30,7 +31,7 @@ const getData = async () => {
 const App = () => {
   
   const [currentStep, setCurrentStep] = useState(1);
-  const totalStep = 3;
+  const totalStep = 4;
   const [canPass, setCanPass] = useState(false);
 
   const progressBarStyle = () => {
@@ -61,6 +62,13 @@ const App = () => {
       };
     }
   };
+
+  const period_selection = [
+    "Year & Aunnal",
+    "Month",
+    "Day",
+    "Hour",
+  ];
 
   return (
     <View style={styles.container}>
@@ -122,6 +130,12 @@ const App = () => {
           : <View></View>
         }
         { currentStep == 2 ?
+          <ScrollView style={[styles.step, {}]}>
+            <ListViewSelect list={period_selection} />
+          </ScrollView>
+            : <View></View>
+        }
+        { currentStep == 3 ?
           <ScrollView style={[styles.step, {}]}>
             <Date> </Date>
           </ScrollView>
