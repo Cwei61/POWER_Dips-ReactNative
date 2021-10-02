@@ -100,17 +100,16 @@ const App = () => {
   const [end_date, setEndDate] = useState(new Date(1598051730000));
   
 
-  function useInput() {
+  function useInput(ID) {
 
     const [date, setDate] = useState(new Date(1598051730000));
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
-
     const onChange = (event, selectedDate) => {
-      const currenDate = selectedDate || date;
+      const currentDate = selectedDate || date;
       setShow(Platform.OS === 'ios');
-      setDate(currenDate);
-      console.log(currentDate);
+      setDate(currentDate);
+      ID == 0 ? parameter.start_date = date : parameter.end_date = date;
     };
     
     const showMode = (currentMode) => {
@@ -131,8 +130,8 @@ const App = () => {
     }
 
   }
-  const input1 = useInput();
-  const input2 = useInput();
+  const startInput = useInput(0);
+  const endInput = useInput(1);
 
 
   const data_category = {
@@ -249,7 +248,7 @@ const App = () => {
         {currentStep == 3 ?
           <SafeAreaView style={[styles.step, {}]}>
             {Platform.OS === 'android' ?
-              <Button title="Select Start Date: " onPress={input1.showDatepicker} /> :
+              <Button title="Select Start Date: " onPress={startInput.showDatepicker} /> :
               <Text style={{
                 textAlign: "center",
                 color: "blue",
@@ -258,19 +257,19 @@ const App = () => {
               }}>
                 Select Start Date: </Text>
             }
-            {(Platform.OS === 'ios' || input1.show) &&
+            {(Platform.OS === 'ios' || startInput.show) &&
               <DateTimePicker
                 testID="dateTimePickerStart"
-                value={input1.date}
-                mode={input1.mode}
+                value={startInput.date}
+                mode={startInput.mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={input1.onChange}
+                onChange={startInput.onChange}
               />
             }
 
             {Platform.OS === 'android' ?
-              <Button title="Select End Date: " onPress={input2.showDatepicker} /> :
+              <Button title="Select End Date: " onPress={endInput.showDatepicker} /> :
               <Text style={{
                 textAlign: "center",
                 color: "blue",
@@ -279,14 +278,14 @@ const App = () => {
               }}>
                 Select End Date: </Text>
             }
-            {(Platform.OS === 'ios' || input2.show) &&
+            {(Platform.OS === 'ios' || endInput.show) &&
               <DateTimePicker
                 testID="dateTimePickerEnd"
-                value={input2.date}
-                mode={input2.mode}
+                value={endInput.date}
+                mode={endInput.mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={input2.onChange}
+                onChange={endInput.onChange}
               />
             }
           </SafeAreaView>
