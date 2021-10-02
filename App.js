@@ -8,7 +8,7 @@ import axios from 'axios';
 //import Date from './view/date_choose'
 import SelectDropdown from 'react-native-select-dropdown'
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {LineChart,BarChart,PieChart,ProgressChart,ContributionGraph,StackedBarChart} from "react-native-chart-kit";
+import { LineChart, BarChart, PieChart, ProgressChart, ContributionGraph, StackedBarChart } from "react-native-chart-kit";
 //import { Select, Option } from 'react-native-select-list';
 import MultiSelect from 'react-native-multiple-select';
 
@@ -22,7 +22,7 @@ var parameter = {
   temporal_avg: '',
   start_date: '',
   end_date: '',
-  category: '', 
+  category: '',
 }
 
 var result = []
@@ -36,14 +36,14 @@ const App = () => {
         api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&format=json'
         //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
       }
-      else if(parameter.temporal_avg == 'monthly'){
-        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start='+parameter.start_date+'&end='+parameter.end_date+'&format=json'
+      else if (parameter.temporal_avg == 'monthly') {
+        api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
-      else{
-        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start='+parameter.start_date+'&end='+parameter.end_date+'&format=json'
+      else {
+        api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
-      alert(api_url)
+      //alert(api_url)
       console.log(api_url)
       const response = await fetch(api_url)
       const json_res = await response.json();
@@ -56,9 +56,9 @@ const App = () => {
       for (let i = 0; i < data[0].length; i++) {
         data[1][i] = json_data[data[0][i]]
       }
-      
+
       result = data
-      alert(result)
+      //alert(result)
 
     } catch (error) {
       console.error(error);
@@ -137,7 +137,7 @@ const App = () => {
     'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)': 'WS50M_MIN',
     'MERRA-2 Wind Speed at 50 Meters Range (m/s)': 'WS50M_RANGE',
   }
-  
+
 
 
   //parameter about graph
@@ -153,16 +153,21 @@ const App = () => {
     ],
     legend: ["Solar Power (W/m^2)"] // optional
   };
-  
+
   const chartConfig = {
     backgroundGradientFrom: "#FCFCFC",
     backgroundGradientFromOpacity: 1,
     backgroundGradientTo: "#FCFCFC",
     backgroundGradientToOpacity: 1,
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    strokeWidth: 2, // optional, default 3
-    barPercentage: 0.5,
-    useShadowColorFromDataset: false // optional
+    strokeWidth: 3, // optional, default 3
+    barPercentage: 1,
+    useShadowColorFromDataset: false, // optional
+    propsForVerticalLabels: {
+      width: 10,
+      flex: 1,
+      flexWrap: 'wrap',
+    },
   };
 
   //parameter for date picker
@@ -175,8 +180,8 @@ const App = () => {
       setShow(Platform.OS === 'ios');
       setDate(currentDate);
       currentDate = JSON.stringify(currentDate).split('T')[0].substring(1, 20);
-      let y=currentDate.split('-')[0], m=currentDate.split('-')[1], d=currentDate.split('-')[2]
-      ID == 0 ? parameter.start_date = y+m+d : parameter.end_date = y+m+d;
+      let y = currentDate.split('-')[0], m = currentDate.split('-')[1], d = currentDate.split('-')[2]
+      ID == 0 ? parameter.start_date = y + m + d : parameter.end_date = y + m + d;
     };
 
     const showMode = (currentMode) => {
@@ -289,9 +294,11 @@ const App = () => {
           : <View></View>
         }
         {currentStep == 3 ?
-          <SafeAreaView style={[styles.step, {}]}>
+          <SafeAreaView style={styles.dateStartButton}>
+
+
             {Platform.OS === 'android' ?
-              <Button title="Select Start Date: " onPress={startInput.showDatepicker} /> :
+              <Button style={styles.dateButton} title="Select Start Date: " onPress={startInput.showDatepicker} /> :
               <Text style={{
                 textAlign: "center",
                 color: "blue",
@@ -311,26 +318,28 @@ const App = () => {
               />
             }
 
-            {Platform.OS === 'android' ?
-              <Button title="Select End Date: " onPress={endInput.showDatepicker} /> :
-              <Text style={{
-                textAlign: "center",
-                color: "blue",
-                fontWeight: "bold",
-                fontSize: 20,
-              }}>
-                Select End Date: </Text>
-            }
-            {(Platform.OS === 'ios' || endInput.show) &&
-              <DateTimePicker
-                testID="dateTimePickerEnd"
-                value={endInput.date}
-                mode={endInput.mode}
-                is24Hour={true}
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                onChange={endInput.onChange}
-              />
-            }
+            <View style={styles.dateButton}>
+              {Platform.OS === 'android' ?
+                <Button title="Select End Date: " onPress={endInput.showDatepicker} /> :
+                <Text style={{
+                  textAlign: "center",
+                  color: "blue",
+                  fontWeight: "bold",
+                  fontSize: 20,
+                }}>
+                  Select End Date: </Text>
+              }
+              {(Platform.OS === 'ios' || endInput.show) &&
+                <DateTimePicker
+                  testID="dateTimePickerEnd"
+                  value={endInput.date}
+                  mode={endInput.mode}
+                  is24Hour={true}
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={endInput.onChange}
+                />
+              }
+            </View>
           </SafeAreaView>
           : <View></View>
         }
@@ -356,23 +365,24 @@ const App = () => {
           <ScrollView>
             <Text style={styles.text}> Result page</Text>
             <Text style={styles.text}> {JSON.stringify(result)}</Text>
-            <ScrollView horizontal={true}>
-              <LineChart
+            <ScrollView horizontal={true} >
+              <LineChart style={styles.chart}
                 data={
                   {
-                    labels: [result[0]],
-                    datasets:[
+                    labels: result[0],
+                    datasets: [
                       {
-                        data: [result[1]],
+                        data: result[1],
                         color: (opacity = 1) => `rgba(30,144,255,${opacity})`, // optional
                         strokeWidth: 2 // optional
                       }
                     ],
-                    legend: ["Solar Power (W/m^2)"] // optional
+                    legend: ["Solar Power KW/m^2"] // optional
+
                   }
                 }
-                width = {screenWidth}
-                height={220}
+                width={screenWidth}
+                height={250}
                 chartConfig={chartConfig}
               />
             </ScrollView>
@@ -495,7 +505,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   bottomButton: {
-    justifyContent : 'flex-end'
+    justifyContent: 'flex-end'
+  },
+  chart: {
+    borderWidth: 4,
+    borderColor: "#20232a",
+  },
+  dateButton: {
+    paddingTop: 80,
+  },
+  dateStartButton: {
+    flex: 1,
+    paddingTop: 40,
   }
 });
 
