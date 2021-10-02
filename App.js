@@ -6,10 +6,20 @@ import { useState } from 'react';
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 import Date from './view/date_choose'
+import SelectDropdown from 'react-native-select-dropdown'
 //import { Select, Option } from 'react-native-select-list';
 
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
+
+// parameter to call data
+const parameter = {
+  longitude: '',
+  latitude: '',
+  temporal_avg: '',
+  start_date: '',
+  end_date: '',
+}
 
 const getData = async () => {
   try {
@@ -65,15 +75,11 @@ const App = () => {
   };
 
   const period_selection = [
-    "Year & Aunnal",
-    "Month",
-    "Day",
-    "Hour",
+    "Climatology",
+    "Monthly & Annual",
+    "Daily",
+    "Hourly",
   ];
-
-  const a = () => {
-    
-  };
 
   return (
     <View style={styles.container}>
@@ -136,7 +142,23 @@ const App = () => {
         }
         { currentStep == 2 ?
           <ScrollView style={[styles.step, {}]}>
-            
+            <Text style={styles.text}>Please choose a Temporal Average: </Text>
+            <SelectDropdown
+              data={period_selection}
+              onSelect={(selectedItem, index) => {
+                console.log(selectedItem, index)
+              }}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                // text represented after item is selected
+                // if data array is an array of objects then return selectedItem.property to render after item is selected
+                return selectedItem
+              }}
+              rowTextForSelection={(item, index) => {
+                // text represented for each item in dropdown
+                // if data array is an array of objects then return item.property to represent item in dropdown
+                return item
+              }}
+            />
           </ScrollView>
             : <View></View>
         }
