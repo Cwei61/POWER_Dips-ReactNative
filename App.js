@@ -14,59 +14,59 @@ import MultiSelect from 'react-native-multiple-select';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
-// parameter to call data
-const parameter = {
-  longitude: 0,
-  latitude: 0,
-  temporal_avg: '',
-  start_date: '',
-  end_date: '',
-  category: '', 
-}
-
-const result = {
-  'test': [1,2]
-}
-
-const getData = async () => {
-  try {
-    var api_url = ''
-    if(parameter.temporal_avg == 'climatology'){
-      api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&format=json'
-      //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
-    }
-    else if(parameter.temporal_avg == 'monthly'){
-      api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=2016&end=2017&format=json'
-    }
-    else{
-      api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
-    }
-    alert(parameter.start_date)
-    //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
-
-    const response = await fetch(api_url); 
-    const json_res = await response.json();
-
-    let json_data = json_res['properties']['parameter'][parameter.category];
-
-    let data = [[],[]]
-    data[0] = Object.keys(json_data)
-    
-    for (let i=0; i<data[0].length; i++){
-      data[1][i] = json_data[data[0][i]]
-    }
-    alert(data)
-
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const App = () => {
+  
+  // parameter to call data
+  const parameter = {
+    longitude: 0,
+    latitude: 0,
+    temporal_avg: '',
+    start_date: '',
+    end_date: '',
+    category: '', 
+  }
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalStep = 5;
+  const result = {
+    'test': [1,2]
+  }
+
+  const getData = async () => {
+    try {
+      var api_url = ''
+      if(parameter.temporal_avg == 'climatology'){
+        api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&format=json'
+        //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
+      }
+      else if(parameter.temporal_avg == 'monthly'){
+        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=2016&end=2017&format=json'
+      }
+      else{
+        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
+      }
+      alert(parameter.start_date)
+      //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
+
+      const response = await fetch(api_url); 
+      const json_res = await response.json();
+
+      let json_data = json_res['properties']['parameter'][parameter.category];
+
+      let data = [[],[]]
+      data[0] = Object.keys(json_data)
+      
+      for (let i=0; i<data[0].length; i++){
+        data[1][i] = json_data[data[0][i]]
+      }
+      alert(data)
+
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const totalStep = 5; // 0:menu, 2~4:parm set, 5:result
   const [canPass, setCanPass] = useState(false);
 
   const progressBarStyle = () => {
@@ -76,7 +76,7 @@ const App = () => {
         position: 'absolute',
         left: 0,
         top: 0,
-        width: Dimensions.get('window').width * currentStep / totalStep,
+        width: Dimensions.get('window').width * currentStep / (totalStep-1),
         height: '100%',
         backgroundColor: '#def86a',
         zIndex: -1,
@@ -104,44 +104,6 @@ const App = () => {
     "Daily",
     "Hourly",
   ];
-  
-  const [end_date, setEndDate] = useState(new Date(1598051730000));
-  
-
-  function useInput() {
-
-    const [date, setDate] = useState(new Date(1598051730000));
-    const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
-
-    const onChange = (event, selectedDate) => {
-      const currenDate = selectedDate || date;
-      setShow(Platform.OS === 'ios');
-      setDate(currenDate);
-      alert(currentDate);
-    };
-    
-    const showMode = (currentMode) => {
-      setShow(true);
-      setMode(currentMode);
-    };
-
-    const showDatepicker = () => {
-      showMode('date');
-    };
-
-    return {
-      date,
-      showDatepicker,
-      show,
-      mode,
-      onChange,
-      currentDate
-    }
-  }
-  const input1 = useInput();
-  const input2 = useInput();
-
 
   const data_category = {
     'CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)':'ALLSKY_SFC_SW_DWN',
@@ -176,20 +138,62 @@ const App = () => {
     'MERRA-2 Wind Speed at 50 Meters Range (m/s)':'WS50M_RANGE',
   }
 
-  let a='1'
+  const [end_date, setEndDate] = useState(new Date(1598051730000));
+
+  function useInput() {
+
+    const [date, setDate] = useState(new Date(1598051730000));
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
+
+    const onChange = (event, selectedDate) => {
+      const currenDate = selectedDate || date;
+      setShow(Platform.OS === 'ios');
+      setDate(currenDate);
+    };
+    
+    const showMode = (currentMode) => {
+      setShow(true);
+      setMode(currentMode);
+    };
+
+    const showDatepicker = () => {
+      showMode('date');
+    };
+
+    return {
+      date,
+      showDatepicker,
+      show,
+      mode,
+      onChange,
+    }
+  }
+  const input1 = useInput();
+  const input2 = useInput();
 
   return (
     <View style={styles.container}>
-      <View style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <View style={progressBarStyle()}></View>
-        <Text style={{
-          fontSize: 30,
-        }}>{currentStep} / {totalStep} </Text>
-      </View>
+      { currentStep > 0 && currentStep < totalStep?
+        <View style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View style={progressBarStyle()}></View>
+          <Text style={{
+            fontSize: 30,
+          }}>{currentStep} / {totalStep-1} </Text>
+        </View>
+         : <View></View>
+      }
       <View style={{ padding: 10, flex: 1 }}>
+        {currentStep == 0 ?
+          <ScrollView>
+            <Text style={styles.text}> Menu </Text>
+            <Button onPress={ setCurrentStep.bind(this, currentStep+1)} title="Start" />
+          </ScrollView>
+            : <View></View>
+        }
         {currentStep == 1 ?
           <View style={styles.step}>
             <Text style={styles.text}>Please choose your location: </Text>
@@ -275,6 +279,7 @@ const App = () => {
                 mode={input1.mode}
                 is24Hour={true}
                 display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={input1.onChange}
               />
             }
 
@@ -321,8 +326,9 @@ const App = () => {
         }
         { currentStep == totalStep ?
           <ScrollView>
-            <Text style={styles.text}> Result page </Text> 
-            <Text style={styles.text}> { JSON.stringify(result) }</Text>            
+            <Text style={styles.text}> Result page </Text>
+            <Text style={styles.text}> { JSON.stringify(result) }</Text>
+            <Button onPress={ setCurrentStep.bind(this, 0)} title="Meun" />        
           </ScrollView>
           : <View></View>
         }
@@ -332,10 +338,10 @@ const App = () => {
           flexDirection: 'row',
           margin: 20,
         }}>
-        {currentStep != 1 && currentStep != totalStep  ?
+        {currentStep > 0 && currentStep < totalStep  ?
           <TouchableOpacity style={styles.previousButton}
             onPress={() => {
-              if (currentStep > 1) {
+              if (currentStep > 0) {
                 setCurrentStep(currentStep - 1);
               }
             }}>
@@ -343,10 +349,9 @@ const App = () => {
           </TouchableOpacity> :
           <View></View>
         }
-        {  currentStep != totalStep && currentStep != totalStep-1 ?
+        { currentStep>0 && currentStep<totalStep ?
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
             onPress={() => {
-              //setCanPass(false);
               if (currentStep < totalStep) {
                 setCurrentStep(currentStep + 1);
               }
