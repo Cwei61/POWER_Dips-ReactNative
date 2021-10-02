@@ -9,11 +9,7 @@ import axios from 'axios';
 import SelectDropdown from 'react-native-select-dropdown'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LineChart, BarChart, PieChart, ProgressChart, ContributionGraph, StackedBarChart } from "react-native-chart-kit";
-//import { Select, Option } from 'react-native-select-list';
-import MultiSelect from 'react-native-multiple-select';
-
-
-
+import Predict from "./view/predict"
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
@@ -373,12 +369,11 @@ const App = () => {
             <Text style={styles.text}> Sorry, we can't get this data for you. Try other parameters.</Text>
             <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
           </ScrollView>
-          : <View></View>
+          : <View></View> 
         }        
         {currentStep == totalStep  && result != 'No data found'?
           <ScrollView>
             <Text style={styles.text}> Result page</Text>
-            <Text style={styles.text}> {JSON.stringify(result)}</Text>
             <ScrollView horizontal={true} >
               <LineChart style={styles.chart}
                 data={
