@@ -14,39 +14,37 @@ import MultiSelect from 'react-native-multiple-select';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
-const App = () => {
-  
-  // parameter to call data
-  const parameter = {
-    longitude: 0,
-    latitude: 0,
-    temporal_avg: '',
-    start_date: '',
-    end_date: '',
-    category: '', 
-  }
+// parameter to call data
+var parameter = {
+  longitude: 0,
+  latitude: 0,
+  temporal_avg: '',
+  start_date: '',
+  end_date: '',
+  category: '', 
+}
 
-  const result = {
-    'test': [1,2]
-  }
+var result = []
+
+const App = () => {
 
   const getData = async () => {
     try {
-      alert(parameter.start_date)
       var api_url = ''
       if(parameter.temporal_avg == 'climatology'){
         api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&format=json'
         //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
       }
       else if(parameter.temporal_avg == 'monthly'){
-        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=2016&end=2017&format=json'
+        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start='+parameter.start_date+'&end='+parameter.end_date+'&format=json'
       }
       else{
-        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start=20170101&end=20170102&format=json'
+        api_url = 'https://power.larc.nasa.gov/api/temporal/'+parameter.temporal_avg+'/point?parameters='+parameter.category+'&community=SB&longitude='+parameter.longitude+'&latitude='+parameter.latitude+'&start='+parameter.start_date+'&end='+parameter.end_date+'&format=json'
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
-
-      const response = await fetch(api_url); 
+      alert(api_url)
+      console.log(api_url)
+      const response = await fetch(api_url)
       const json_res = await response.json();
 
       let json_data = json_res['properties']['parameter'][parameter.category];
@@ -57,9 +55,10 @@ const App = () => {
       for (let i=0; i<data[0].length; i++){
         data[1][i] = json_data[data[0][i]]
       }
-      alert(data)
+      
+      result = data
+      alert(result)
 
-      return data;
     } catch (error) {
       console.error(error);
     }
@@ -145,13 +144,12 @@ const App = () => {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
     const onChange = (event, selectedDate) => {
-      ID == 0 ? parameter.start_date = JSON.stringify(currentDate) : parameter.end_date = JSON.stringify(currentDate);
       currentDate = selectedDate || date;
       setShow(Platform.OS === 'ios');
-      //setDate(currentDate);
-      
-      //alert()
-      //alert(parameter.end_date)
+      setDate(currentDate);
+      currentDate = JSON.stringify(currentDate).split('T')[0].substring(1, 20);
+      let y=currentDate.split('-')[0], m=currentDate.split('-')[1], d=currentDate.split('-')[2]
+      ID == 0 ? parameter.start_date = y+m+d : parameter.end_date = y+m+d;
     };
     
     const showMode = (currentMode) => {
@@ -191,10 +189,12 @@ const App = () => {
       }
       <View style={{ padding: 10, flex: 1 }}>
         {currentStep == 0 ?
-          <ScrollView>
-            <Text style={styles.text}> Menu </Text>
-            <Button onPress={ setCurrentStep.bind(this, currentStep+1)} title="Start" />
-          </ScrollView>
+          <View>
+            <Text style={styles.text}> The Menu </Text>
+            <TouchableOpacity style={styles.bottomButton} >
+              <Button onPress={ setCurrentStep.bind(this, currentStep+1)} title="Start" />
+            </TouchableOpacity>
+          </View>
             : <View></View>
         }
         {currentStep == 1 ?
@@ -311,7 +311,7 @@ const App = () => {
         }
         { currentStep == 4 ?
           <ScrollView style={[styles.step, {}]}>
-            <Text style={styles.text}>Please choose a ???: </Text>
+            <Text style={styles.text}>Select Parameters: </Text>
             <SelectDropdown
               data={Object.keys(data_category)}
               onSelect={(selectedItem, index) => {
@@ -328,11 +328,11 @@ const App = () => {
           : <View></View>
         }
         { currentStep == totalStep ?
-          <ScrollView>
+          <View>
             <Text style={styles.text}> Result page </Text>
             <Text style={styles.text}> { JSON.stringify(result) }</Text>
-            <Button onPress={ setCurrentStep.bind(this, 0)} title="Meun" />        
-          </ScrollView>
+            <Button style={styles.bottomButton} onPress={ setCurrentStep.bind(this, 0)} title="Menu" />        
+          </View>
           : <View></View>
         }
       </View>
@@ -382,8 +382,9 @@ const App = () => {
             { currentStep == totalStep-1 ?
               <TouchableOpacity style={styles.fetchButton}
                 onPress={() => {
-                  getData()
-                  setCurrentStep(currentStep + 1)
+                  getData().then(() => {
+                    setCurrentStep(currentStep + 1)
+                  })
                 }}>
                 <Text>Fetch</Text>
               </TouchableOpacity>:
@@ -447,6 +448,9 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  bottomButton: {
+    justifyContent : 'flex-end'
   }
 });
 
