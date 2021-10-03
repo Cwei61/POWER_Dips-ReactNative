@@ -30,7 +30,6 @@ var parameter = {
 const appTitle = "POWER\r\n DATA\r\n INTERFACE";
 var result = []
 
-var onPredict = false
 
 const App = () => {
 
@@ -54,7 +53,6 @@ const App = () => {
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
       alert(api_url)
-      console.log(api_url)
       const response = await fetch(api_url)
       const json_res = await response.json();
 
@@ -69,6 +67,15 @@ const App = () => {
 
       result = data
       //alert(result)
+
+    } catch (error) {
+      result = 'No data found'
+    }
+  };
+  const predict = async () => {
+    try {
+      const response = await fetch('/api?lat=50&lon=50&days=30')
+      const json_res = await response.json();
 
     } catch (error) {
       result = 'No data found'
@@ -204,6 +211,8 @@ const App = () => {
   const startInput = useInput(0);
   const endInput = useInput(1);
 
+  var latitude_s = '', longitude_s = ''
+
   return (
     <LinearGradient  
       colors = {currentStep == 0 ? ['#9C51B6', '#5946B2'] : ['#e3ebff', '#e3ebff']} 
@@ -211,7 +220,7 @@ const App = () => {
       style={{
       flex: 1,
     }}>
-    <View style={currentStep == 0 ? styles.firstPageContainer : styles.container}>
+    <SafeAreaView style={currentStep == 0 ? styles.firstPageContainer : styles.container}>
 
       {currentStep > 0 && currentStep < totalStep ?
         <View style={{
@@ -326,25 +335,13 @@ const App = () => {
                   <View style={styles.half_w}>
                     <Text>latitude</Text>
                     <TextInput style={styles.half_w_text_input} 
-                              onChangeText={(text)=> {
-                                if(text.split(".").length == 3){
-                                  text = text.substring(0, text.length - 1);
-                                }
-                                parameter.latitude = parseInt(text)
-                              }}
-                              value={parameter.latitude}
-                              keyboardType="numeric"
+                              onChangeText={(text)=> {latitude_s = text}}
                               ></TextInput>
                   </View>
                   <View style={styles.half_w}>
                     <Text>longitude</Text>
                     <TextInput style={styles.half_w_text_input} 
-                              onChangeText={(text)=> {
-                                if(text.split(".").length == 3) text = text.substring(0, text.length - 1)
-                                parameter.longitude = parseInt(text)
-                              }}
-                              value={parameter.longitude}
-                              keyboardType="numeric"
+                              onChangeText={(text)=> {longitude_s = text}}
                               ></TextInput>
                   </View>
                 </View>
@@ -545,6 +542,18 @@ const App = () => {
         {currentStep > 0 && currentStep < totalStep - 1 ?
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
             onPress={() => {
+              if (currentStep == 1){
+                if(placeOrLatLng == true){
+                  try{
+                    parameter.latitude = parseFloat(latitude_s)
+                    parameter.longitude = parseFloat(longitude_s)
+                  }
+                  catch(e){
+                    alert("Input is invalid\nlat and lng should be numbers")
+                    return
+                  }
+                }
+              }
               if (currentStep < totalStep) {
                 setCurrentStep(currentStep + 1);
               }
@@ -584,7 +593,7 @@ const App = () => {
         }
       </View>
     
-    </View>
+    </SafeAreaView>
     </LinearGradient>
   );
 };
