@@ -12,7 +12,7 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 ```
 #### 3.Setup Visual Studio Code
 *	Install React Native Tool for visusl studio code
-![step 1](https://github.com/Jacqueline-Tsai/sunshine_2021_NASA_hackson/blob/main/images/vscode.png?raw=true)
+![step 1](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/vscode.png?raw=true)
 #### 4.Git Clone
 ```
 	cd [the path you want to store our project]
@@ -43,7 +43,7 @@ now the project was completely installed.
 	npm start
 ```
 >we'll get a webpage look like this
-![service](https://github.com/Jacqueline-Tsai/sunshine_2021_NASA_hackson/blob/main/images/server.png?raw=true)
+![service](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/server.png?raw=true)
 
 #### 3. Launch The App On Mobile Device
 *	open your mobile camera and scan the QR Code at the bottom left of your web page  
