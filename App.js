@@ -68,15 +68,15 @@ const App = () => {
         parameter.start_date = tmp
       }
       var api_url = ''
-      if (parameter.temporal_avg == 'climatology') {
+      if (value2 == 'climatology') {
         api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&format=json'
         //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=WS50M_RANGE&community=SB&longitude=0&latitude=0&format=JSON'
       }
-      else if (parameter.temporal_avg == 'monthly') {
-        api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
+      else if (value2 == 'monthly') {
+        api_url = 'https://power.larc.nasa.gov/api/temporal/' + value2 + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
       else {
-        api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
+        api_url = 'https://power.larc.nasa.gov/api/temporal/' + value2 + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
       const response = await fetch(api_url)
@@ -485,6 +485,7 @@ const App = () => {
               setItems={(item) => {
                 setItems2(item);
                 parameter.temporal_avg = item;
+                Alert.alert(parameter.temporal_avg);
               }}
             />
           </View>
