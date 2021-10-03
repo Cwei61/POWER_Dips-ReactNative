@@ -50,4 +50,14 @@ now the project was completely installed.
 your mobile device will automatically open Expo Go and run the app.
 *	For the CONNECTION setting, choose "Tunnel" if your mobile device is not on the same LAN with your server, or the LAN setting doesn't work.
 
+#### 4. Build android apk and IOS simulator 
+*	android - open command line, then type:
+```
+	expo build:android
+```
+*	IOS - open command line, then type:
+```
+	expo build:ios
+```
+
 	
