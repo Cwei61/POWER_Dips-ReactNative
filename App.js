@@ -17,7 +17,7 @@ import { Component } from 'react';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
+const GOOGLE_PLACES_API_KEY = '';
 
 const server = 'http://192.168.202.32:5000'
 
@@ -25,7 +25,7 @@ const server = 'http://192.168.202.32:5000'
 var parameter = {
   longitude: 0,
   latitude: 0,
-  temporal_avg: '',
+  temporal_avg: 'climatology',
   start_date: '',
   end_date: '',
   category: '',
@@ -45,8 +45,20 @@ const App = () => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState(array);
-  const [fetchbtnon, setFetchbtn] = useState(true);
+  const [open1, setOpen1] = useState(false);
+  const [value1, setValue1] = useState(null);
+  const [items1, setItems1] = useState(data_category);
+  const [open2, setOpen2] = useState(false);
+  const [value2, setValue2] = useState(null);
+  const [items2, setItems2] = useState([
+    {label: 'Climatology', value: 'climatology'}, 
+    {label: 'Monthly', value: 'monthly'}, 
+    {label: 'Daily', value: 'daily'}, 
+    {label: 'Hourly', value: 'hourly'}, 
+  ]);
   //const [items, setItems] = useState([{label: 'apple', value: 'apple'}]);
+
+  const [fetchbtnon, setFetchbtn] = useState(true);
 
   const getData = async () => {
     try {
@@ -67,7 +79,6 @@ const App = () => {
         api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
-      //alert(api_url)
       const response = await fetch(api_url)
       
       const json_res = await response.json();
@@ -109,35 +120,26 @@ const App = () => {
 
   const progressBarStyle = () => {
 
-    if (currentStep < totalStep) {
-      let step = currentStep;
-      if (step >= totalStep) {
-        step = currentStep - totalStep;
-      }
-      return {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: Dimensions.get('window').width * step / (totalStep - 1),
-        height: '100%',
-        backgroundColor: '#def86a',
-        zIndex: -1,
-        borderBottomLeftRadius: 10,
-        borderTopLeftRadius: 10,
-      };
+    let step = currentStep;
+    if (step >= totalStep) {
+      step = currentStep - totalStep;
     }
-    else {
-      return {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#def86a',
-        zIndex: -1,
-        borderRadius: 10,
-      };
+    let total = totalStep - 1;
+    if (currentStep > totalStep) {
+      total = 2
     }
+    //Alert.alert(step.toString() + ' / ' + total.toString());
+    return {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      width: (Dimensions.get('window').width - 20) * step / total,
+      height: '100%',
+      backgroundColor: '#def86a',
+      zIndex: -1,
+      borderBottomLeftRadius: 10,
+      borderTopLeftRadius: 10,
+    };
   };
 
   const period_selection = [
@@ -147,37 +149,70 @@ const App = () => {
     "Hourly",
   ];
 
+  //const data_category = [
+  //  {label: 'CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)', value: 'ALLSKY_SFC_SW_DWN'},
+  //  {label: 'CERES SYN1deg Clear Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)', value:  'CLRSKY_SFC_SW_DWN'},
+  //  {label: 'MERRA-2 Wind Speed at 2 Meters (m/s)', value:  'WS2M'},
+  //  {label: 'CERES SYN1deg All Sky Insolation Clearness Index (dimensionless)', value:  'ALLSKY_KT'},
+  //  {label: 'CERES SYN1deg All Sky Normalized Insolation Clearness Index (dimensionless)', value:  'ALLSKY_NKT'},
+  //  {label: 'CERES SYN1deg All Sky Surface Longwave Downward Irradiance (W/m^2)', value:  'ALLSKY_SFC_LW_DWN'},
+  //  {label: 'CERES SYN1deg All Sky Surface PAR Total (W/m^2)', value:  'ALLSKY_SFC_PAR_TOT'},
+  //  {label: 'CERES SYN1deg Clear Sky Surface PAR Total (W/m^2)', value:  'CLRSKY_SFC_PAR_TOT'},
+  //  {label: 'CERES SYN1deg All Sky Surface UVA Irradiance (W/m^2)', value:  'ALLSKY_SFC_UVA'},
+  //  {label: 'CERES SYN1deg All Sky Surface UVB Irradiance (W/m^2)', value:  'ALLSKY_SFC_UVB'},
+  //  {label: 'CERES SYN1deg All Sky Surface UV Index (dimensionless', value:  'ALLSKY_SFC_UV_INDEX'},
+  //  {label: 'MERRA-2 Temperature at 2 Meters (C)', value:  'T2M'},
+  //  {label: 'MERRA-2 Dew/Frost Point at 2 Meters (C)', value:  'T2MDEW'},
+  //  {label: 'MERRA-2 Wet Bulb Temperature at 2 Meters (C)', value:  'T2MWET'},
+  //  {label: 'MERRA-2 Earth Skin Temperature (C)', value:  'TS'},
+  //  {label: 'MERRA-2 Temperature at 2 Meters Range (C)', value:  'T2M_RANGE'},
+  //  {label: 'MERRA-2 Temperature at 2 Meters Maximum (C)', value:  'T2M_MAX'},
+  //  {label: 'MERRA-2 Temperature at 2 Meters Minimum (C)', value:  'T2M_MIN'},
+  //  {label: 'MERRA-2 Specific Humidity at 2 Meters (g/kg)', value:  'QV2M'},
+  //  {label: 'MERRA-2 Relative Humidity at 2 Meters (%)', value:  'RH2M'},
+  //  {label: 'MERRA-2 Precipitation Corrected (mm)', value:  'PRECTOTCORR'},
+  //  {label: 'MERRA-2 Surface Pressure (kPa)', value:  'PS'},
+  //  {label: 'MERRA-2 Wind Speed at 10 Meters (m/s)', value:  'WS10M'},
+  //  {label: 'MERRA-2 Wind Speed at 10 Meters Maximum (m/s)', value:  'WS10M_MAX'},
+  //  {label: 'MERRA-2 Wind Speed at 10 Meters Minimum (m/s)', value:  'WS10M_MIN'},
+  //  {label: 'MERRA-2 Wind Speed at 10 Meters Range (m/s)', value:  'WS10M_RANGE'},
+  //  {label: 'MERRA-2 Wind Speed at 50 Meters (m/s)', value:  'WS50M'},
+  //  {label: 'MERRA-2 Wind Speed at 50 Meters Maximum (m/s)', value:  'WS50M_MAX'},
+  //  {label: 'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)', value:  'WS50M_MIN'},
+  //  {label: 'MERRA-2 Wind Speed at 50 Meters Range (m/s)', value:  'WS50M_RANGE'},
+  //]
+
   const data_category = {
-    'CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)': 'ALLSKY_SFC_SW_DWN',
-    'CERES SYN1deg Clear Sky Surface Shortwave Downward Irradiance (kW-hr/m^2/day)': 'CLRSKY_SFC_SW_DWN',
-    'MERRA-2 Wind Speed at 2 Meters (m/s)': 'WS2M',
-    'CERES SYN1deg All Sky Insolation Clearness Index (dimensionless)': 'ALLSKY_KT',
-    'CERES SYN1deg All Sky Normalized Insolation Clearness Index (dimensionless)': 'ALLSKY_NKT',
-    'CERES SYN1deg All Sky Surface Longwave Downward Irradiance (W/m^2)': 'ALLSKY_SFC_LW_DWN',
-    'CERES SYN1deg All Sky Surface PAR Total (W/m^2)': 'ALLSKY_SFC_PAR_TOT',
-    'CERES SYN1deg Clear Sky Surface PAR Total (W/m^2)': 'CLRSKY_SFC_PAR_TOT',
-    'CERES SYN1deg All Sky Surface UVA Irradiance (W/m^2)': 'ALLSKY_SFC_UVA',
-    'CERES SYN1deg All Sky Surface UVB Irradiance (W/m^2)': 'ALLSKY_SFC_UVB',
-    'CERES SYN1deg All Sky Surface UV Index (dimensionless': 'ALLSKY_SFC_UV_INDEX',
-    'MERRA-2 Temperature at 2 Meters (C)': 'T2M',
-    'MERRA-2 Dew/Frost Point at 2 Meters (C)': 'T2MDEW',
-    'MERRA-2 Wet Bulb Temperature at 2 Meters (C)': 'T2MWET',
-    'MERRA-2 Earth Skin Temperature (C)': 'TS',
-    'MERRA-2 Temperature at 2 Meters Range (C)': 'T2M_RANGE',
-    'MERRA-2 Temperature at 2 Meters Maximum (C)': 'T2M_MAX',
-    'MERRA-2 Temperature at 2 Meters Minimum (C)': 'T2M_MIN',
-    'MERRA-2 Specific Humidity at 2 Meters (g/kg)': 'QV2M',
-    'MERRA-2 Relative Humidity at 2 Meters (%)': 'RH2M',
-    'MERRA-2 Precipitation Corrected (mm)': 'PRECTOTCORR',
-    'MERRA-2 Surface Pressure (kPa)': 'PS',
-    'MERRA-2 Wind Speed at 10 Meters (m/s)': 'WS10M',
-    'MERRA-2 Wind Speed at 10 Meters Maximum (m/s)': 'WS10M_MAX',
-    'MERRA-2 Wind Speed at 10 Meters Minimum (m/s)': 'WS10M_MIN',
-    'MERRA-2 Wind Speed at 10 Meters Range (m/s)': 'WS10M_RANGE',
-    'MERRA-2 Wind Speed at 50 Meters (m/s)': 'WS50M',
-    'MERRA-2 Wind Speed at 50 Meters Maximum (m/s)': 'WS50M_MAX',
-    'MERRA-2 Wind Speed at 50 Meters Minimum (m/s)': 'WS50M_MIN',
-    'MERRA-2 Wind Speed at 50 Meters Range (m/s)': 'WS50M_RANGE',
+    'ALLSKY_SFC_SW_DWN': 'ALLSKY_SFC_SW_DWN',
+    'CLRSKY_SFC_SW_DWN':  'CLRSKY_SFC_SW_DWN',
+    'WS2M':  'WS2M',
+    'ALLSKY_KT':  'ALLSKY_KT',
+    'ALLSKY_NKT':  'ALLSKY_NKT',
+    'ALLSKY_SFC_LW_DWN':  'ALLSKY_SFC_LW_DWN',
+    'ALLSKY_SFC_PAR_TOT':  'ALLSKY_SFC_PAR_TOT',
+    'CLRSKY_SFC_PAR_TOT':  'CLRSKY_SFC_PAR_TOT',
+    'ALLSKY_SFC_UVA':  'ALLSKY_SFC_UVA',
+    'ALLSKY_SFC_UVB':  'ALLSKY_SFC_UVB',
+    'ALLSKY_SFC_UV_INDEX':  'ALLSKY_SFC_UV_INDEX',
+    'T2M':  'T2M',
+    'T2MDEW':  'T2MDEW',
+    'T2MWET':  'T2MWET',
+    'TS':  'TS',
+    'T2M_RANGE':  'T2M_RANGE',
+    'T2M_MAX':  'T2M_MAX',
+    'T2M_MIN':  'T2M_MIN',
+    'QV2M':  'QV2M',
+    'RH2M':  'RH2M',
+    'PRECTOTCORR':  'PRECTOTCORR',
+    'PS':  'PS',
+    'WS10M':  'WS10M',
+    'WS10M_MAX':  'WS10M_MAX',
+    'WS10M_MIN':  'WS10M_MIN',
+    'WS10M_RANGE':  'WS10M_RANGE',
+    'WS50M':  'WS50M',
+    'WS50M_MAX':  'WS50M_MAX',
+    'WS50M_MIN':  'WS50M_MIN',
+    'WS50M_RANGE':  'WS50M_RANGE',
   }
 
 
@@ -235,7 +270,8 @@ const App = () => {
   const startInput = useInput(0);
   const endInput = useInput(1);
 
-  var latitude_s = '', longitude_s = ''
+  const [latitude_s, setLatitude_s] = useState(''); 
+  const [longitude_s, setLongitude_s] = useState('');
 
   return (
     <LinearGradient  
@@ -254,7 +290,7 @@ const App = () => {
           <View style={progressBarStyle()}></View>
           <Text style={{
             fontSize: 30,
-          }}>{currentStep % totalStep} / {totalStep - 1} </Text>
+          }}>{currentStep % totalStep} / { currentStep > totalStep ? 2 : totalStep - 1} </Text>
         </View>
         : <View></View>
       }
@@ -364,13 +400,23 @@ const App = () => {
                   <View style={styles.half_w}>
                     <Text>latitude</Text>
                     <TextInput style={styles.half_w_text_input} 
-                              onChangeText={(text)=> {latitude_s = text}}
+                              onChangeText={(text)=> {
+                                setLatitude_s(text);
+                                if (longitude_s.length != 0 && latitude_s.length != 0) {
+                                  setCanPass(true);
+                                }
+                              }}
                               ></TextInput>
                   </View>
                   <View style={styles.half_w}>
                     <Text>longitude</Text>
                     <TextInput style={styles.half_w_text_input} 
-                              onChangeText={(text)=> {longitude_s = text}}
+                              onChangeText={(text)=> {
+                                setLongitude_s(text);
+                                if (longitude_s.length != 0 && latitude_s.length != 0) {
+                                  setCanPass(true);
+                                }
+                              }}
                               ></TextInput>
                   </View>
                 </View>
@@ -428,22 +474,20 @@ const App = () => {
           : <View></View>
         }
         {currentStep == 2 ?
-          <ScrollView style={[styles.step, {}]}>
+          <View style={[styles.step, {}]}>
             <Text style={styles.text}>Please choose a Temporal Resolution: </Text>
-            <SelectDropdown
-              dropdownStyle={{width: screenWidth-30}}
-              data={period_selection}
-              onSelect={(selectedItem, index) => {
-                parameter.temporal_avg = selectedItem.toLowerCase();
-              }}
-              buttonTextAfterSelection={(selectedItem, index) => {
-                return selectedItem
-              }}
-              rowTextForSelection={(item, index) => {
-                return item
+            <DropDownPicker
+              open={open2}
+              value={value2}
+              items={items2}
+              setOpen={setOpen2}
+              setValue={setValue2}
+              setItems={(item) => {
+                setItems2(item);
+                parameter.temporal_avg = item;
               }}
             />
-          </ScrollView>
+          </View>
           : <View></View>
         }
         {currentStep == 3 ?
@@ -497,7 +541,7 @@ const App = () => {
           : <View></View>
         }
         {currentStep == 4 ?
-          <ScrollView style={[styles.step, {}]}>
+          <View style={[styles.step, {}]}>
             <Text style={styles.text}>Select Parameters: </Text>
             <SelectDropdown
               data={Object.keys(data_category)}
@@ -511,14 +555,17 @@ const App = () => {
                 return item
               }}
             />
-          </ScrollView>
+          </View>
           : <View></View>
         }
         {currentStep == totalStep && typeof(result) == "string"?
           <ScrollView>
             <Text style={styles.text}> Sorry, we have no data for you </Text>
             <Text style={styles.text}> { result.substring(2, result.length-2) } </Text>
-            <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
+            <Button onPress={() => {
+              setCurrentStep(0);
+              setFetchbtn(true);
+            }} title="Back To Menu" />
           </ScrollView>
           : <View></View> 
         }
@@ -546,7 +593,10 @@ const App = () => {
                 chartConfig={chartConfig}
               />
             </ScrollView>
-            <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
+            <Button onPress={() => {
+              setCurrentStep(0);
+              setFetchbtn(true);
+            }} title="Back To Menu" />
           </ScrollView>
           : <View></View>
         }
@@ -632,13 +682,23 @@ const App = () => {
                   <View style={styles.half_w}>
                     <Text>latitude</Text>
                     <TextInput style={styles.half_w_text_input} 
-                              onChangeText={(text)=> {latitude_s = text}}
+                              onChangeText={(text)=> {
+                                setLatitude_s(text);
+                                if (longitude_s.length != 0 && latitude_s.length != 0) {
+                                  setCanPass(true);
+                                }
+                              }} 
                               ></TextInput>
                   </View>
                   <View style={styles.half_w}>
                     <Text>longitude</Text>
-                    <TextInput style={styles.half_w_text_input} 
-                              onChangeText={(text)=> {longitude_s = text}}
+                    <TextInput style={styles.half_w_text_input}
+                              onChangeText={(text)=> {
+                                setLongitude_s(text);
+                                if (longitude_s.length != 0 && latitude_s.length != 0) {
+                                  setCanPass(true);
+                                }
+                              }} 
                               ></TextInput>
                   </View>
                 </View>
@@ -697,6 +757,7 @@ const App = () => {
         }
         { currentStep == totalStep + 2 ?
           <View style={[styles.step, {}]}>
+            <Text style={styles.text}>Choose how long you want to estimate(days): </Text>
             <DropDownPicker
               open={open}
               value={value}
@@ -755,9 +816,9 @@ const App = () => {
           <View></View>
         }
         {currentStep > 0 && currentStep != totalStep - 1 && currentStep != totalStep && currentStep != totalStep + 2 && currentStep != totalStep + 3?
-          <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
+          <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} disabled={!canPass}
             onPress={() => {
-              if (currentStep == 1){
+              if (currentStep == 1 || currentStep == totalStep + 1){
                 if(placeOrLatLng == true){
                   try{
                     parameter.latitude = parseFloat(latitude_s)
