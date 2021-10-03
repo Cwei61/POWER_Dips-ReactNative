@@ -17,6 +17,8 @@ const screenHeight = Dimensions.get('window').height;
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
+const server = 'https://0.0.0.0/5000'
+
 // parameter to call data
 var parameter = {
   longitude: 0,
@@ -25,6 +27,7 @@ var parameter = {
   start_date: '',
   end_date: '',
   category: '',
+  days: 1,
 }
 
 const appTitle = "POWER\r\n DATA\r\n INTERFACE";
@@ -76,9 +79,9 @@ const App = () => {
   };
   const predict = async () => {
     try {
-      const response = await fetch('/api?lat=50&lon=50&days=30')
+      const response = await fetch(server+'/api?lat='+parameter.latitude+'&lon='+parameter.longitude+'&days='+parameter.days+'')
       const json_res = await response.json();
-
+      alert(json_res)
     } catch (error) {
       
     }
