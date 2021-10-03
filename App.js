@@ -45,6 +45,7 @@ const App = () => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState(array);
+  const [fetchbtnon, setFetchbtn] = useState(true);
   //const [items, setItems] = useState([{label: 'apple', value: 'apple'}]);
 
   const getData = async () => {
@@ -96,7 +97,6 @@ const App = () => {
       //alert(JSON.stringify(response))
       const json_res = await response.json();
       result = json_res;
-      alert(json_res)
     } catch (error) {
       Alert.alert(error.toString());
     }
@@ -738,7 +738,7 @@ const App = () => {
         paddingRight: 20,
         paddingLeft: 20,
       }}>
-        {currentStep > 0 && currentStep != totalStep ?
+        {currentStep > 0 && currentStep != totalStep && currentStep != totalStep + 3 ?
           <TouchableOpacity style={styles.previousButton}
             onPress={() => {
               if (currentStep > 0) {
@@ -752,7 +752,7 @@ const App = () => {
           </TouchableOpacity> :
           <View></View>
         }
-        {currentStep > 0 && currentStep != totalStep - 1 && currentStep != totalStep && currentStep != totalStep + 2 ?
+        {currentStep > 0 && currentStep != totalStep - 1 && currentStep != totalStep && currentStep != totalStep + 2 && currentStep != totalStep + 3?
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
             onPress={() => {
               if (currentStep == 1){
@@ -790,9 +790,10 @@ const App = () => {
           :
           <View>
             {currentStep == totalStep - 1 || currentStep == totalStep + 2 ?
-              <TouchableOpacity style={styles.fetchButton}
+              <TouchableOpacity style={fetchbtnon? styles.fetchButton:styles.nextButtonDisabled} disabled={!fetchbtnon}
                 onPress={() => {
-                  if (currentStep == totalStep - 1) {
+                  setFetchbtn(false)
+                  if (currentStep == totalStep - 1) {                    
                     getData().then(() => {
                       setCurrentStep(currentStep + 1);
                     })
