@@ -12,18 +12,6 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 ```
 #### 3.Setup Visual Studio Code
 *	Install React Native Tool for visusl studio code
-<<<<<<< HEAD
-![step 1](https://github.com/Jacqueline-Tsai/sunshine_2021_NASA_hackson/blob/main/images/vscode.png?raw=true)
-#### 4.Git Clone
-```
-	cd /the path you want to store our project
-	git clone https://github.com/Jacqueline-Tsai/sunshine_2021_NASA_hackson.git
-```
-#### 5.Install React Native Toolkit we used
-```
-	cd sunshine_2021_NASA_hackson
-    npm install 
-=======
 ![step 1](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/vscode.png?raw=true)
 #### 4.Git Clone
 ```
@@ -34,7 +22,6 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 ```
 	cd POWER_Dips-ReactNative
     	npm install 
->>>>>>> 22b70bcd093caab3af753949500c2c5ef052f134
 ```
 
 
@@ -56,19 +43,17 @@ now the project was completely installed.
 	npm start
 ```
 >we'll get a webpage look like this
-<<<<<<< HEAD
-![service](https://github.com/Jacqueline-Tsai/sunshine_2021_NASA_hackson/blob/main/images/server.png?raw=true)
-=======
+
 ![service](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/server.png?raw=true)
->>>>>>> 22b70bcd093caab3af753949500c2c5ef052f134
+
+##### * Note:  If any errors occur simply dismiss it *
+
 
 #### 3. Launch The App On Mobile Device
 *	open your mobile camera and scan the QR Code at the bottom left of your web page  
 your mobile device will automatically open Expo Go and run the app.
 *	For the CONNECTION setting, choose "Tunnel" if your mobile device is not on the same LAN with your server, or the LAN setting doesn't work.
 
-<<<<<<< HEAD
-=======
 #### 4. Build android apk and IOS simulaton file
 *	android - When in repo open command line, then type:
 ```
@@ -79,5 +64,4 @@ your mobile device will automatically open Expo Go and run the app.
 	expo build:ios
 ```
 
->>>>>>> 22b70bcd093caab3af753949500c2c5ef052f134
 	
