@@ -23,9 +23,14 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 	cd POWER_Dips-ReactNative
     	npm install 
 ```
+#### 6.(Optional)Google Places API Key
+*	Add Google Places API Key here
+![](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/api.png?raw=true)
+*	If you don't use API Key, only latitude and longtitude can be used. You will not able to use the geocoding method.
+*	Our official releases do come with full functionality
 
 
-now the project was completely installed.
+
 
 ## Usage
 *	We use Expo Go on mobile device to test our app
@@ -63,5 +68,4 @@ your mobile device will automatically open Expo Go and run the app.
 ```
 	expo build:ios
 ```
-
-![](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/menu.png?raw=true=300x150)
+<a href="url"><img src="https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/menu.png" align="left" height="541" width="250" ></a>
