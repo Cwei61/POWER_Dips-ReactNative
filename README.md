@@ -46,7 +46,7 @@ now the project was completely installed.
 
 ![service](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/server.png?raw=true)
 
-##### * Note:  If any errors occur simply dismiss it *
+##### * Note:  If any error or warnings occur simply dismiss it *
 
 
 #### 3. Launch The App On Mobile Device
