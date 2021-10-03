@@ -63,5 +63,4 @@ your mobile device will automatically open Expo Go and run the app.
 ```
 	expo build:ios
 ```
-
-![](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/menu.png?raw=true=300x150)
+<a href="url"><img src="https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/menu.png" align="left" height="541" width="250" ></a>
