@@ -15,13 +15,13 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 ![step 1](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/vscode.png?raw=true)
 #### 4.Git Clone
 ```
-	cd [the path you want to store our project]
-	git clone https://github.com/Jacqueline-Tsai/sunshine_2021_NASA_hackson.git
+	cd /(the path you want to store our project)
+	git clone https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative.git
 ```
 #### 5.Install React Native Toolkit we used
 ```
-	cd sunshine_2021_NASA_hackson
-    npm install 
+	cd POWER_Dips-ReactNative
+    	npm install 
 ```
 
 
