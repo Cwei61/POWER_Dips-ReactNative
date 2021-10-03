@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "sunshine_2021_NASA_hackson",
+    "slug": "sunshine_2021_NASA_hackson",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.nasahackathon.iosapp"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.albert9052.sunshine_2021_NASA_hackson"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
