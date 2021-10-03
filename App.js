@@ -8,8 +8,11 @@ import axios from 'axios';
 //import Date from './view/date_choose'
 import SelectDropdown from 'react-native-select-dropdown'
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { LineChart, BarChart, PieChart, ProgressChart, ContributionGraph, StackedBarChart } from "react-native-chart-kit";
+import { LineChart, BarChart } from "react-native-chart-kit";
 import Predict from "./view/predict"
+
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
@@ -24,6 +27,8 @@ var parameter = {
 }
 
 var result = []
+
+var onPredict = false
 
 const App = () => {
 
@@ -46,7 +51,7 @@ const App = () => {
         api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
-      //alert(api_url)
+      alert(api_url)
       console.log(api_url)
       const response = await fetch(api_url)
       const json_res = await response.json();
@@ -69,7 +74,7 @@ const App = () => {
   };
 
   const [currentStep, setCurrentStep] = useState(0);
-  const totalStep = 5; // 0:menu, 2~4:parm set, 5:result
+  const totalStep = 5; // 0:menu, 1~4:parm set, 5:result
   const [canPass, setCanPass] = useState(false);
 
   const progressBarStyle = () => {
@@ -144,7 +149,6 @@ const App = () => {
 
 
   //parameter about graph
-  const screenWidth = Dimensions.get("window").width;
   const chartData = {
     labels: ["January", "February", "March", "April", "May", "June"],
     datasets: [
@@ -232,49 +236,83 @@ const App = () => {
         }
         {currentStep == 1 ?
           <View style={styles.step}>
-            <Text style={styles.text}>Please choose your location: </Text>
-            <GooglePlacesAutocomplete
-              style={{
-                paddingRight: 10,
-                paddingLeft: 10,
-              }}
-              placeholder="Search location"
-              query={{
-                key: GOOGLE_PLACES_API_KEY,
-                language: 'zh-TW', // language of the results
-                currentLocation: true,
-                components: 'country:tw',
-              }}
-              onPress={(data, details = null) => {
-                //Alert.alert("Location", JSON.stringify(details.geometry));
+            <View style={styles.half_h}>
+              <Text style={styles.text}>Please choose your location: </Text>
+              <GooglePlacesAutocomplete
+                style={{
+                  paddingRight: 10,
+                  paddingLeft: 10,
+                }}
+                placeholder="Search location"
+                query={{
+                  key: GOOGLE_PLACES_API_KEY,
+                  language: 'zh-TW', // language of the results
+                  currentLocation: true,
+                  components: 'country:tw',
+                }}
+                onPress={(data, details = null) => {
+                  //Alert.alert("Location", JSON.stringify(details.geometry));
 
-                axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
-                  .then((response) => {
-                    //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
-                    parameter.latitude = response.data.result.geometry.location.lat
-                    parameter.longitude = response.data.result.geometry.location.lng
-                    _storeData = async () => {
-                      try {
-                        await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
-                        await AsyncStorage.setItem('currentLocationLng', response.data.result.geometry.location.lng.toString());
-                      } catch (error) {
-                        console.log('Error while storing current location');
-                      }
-                    };
-                    _storeData();
-                    setCanPass(true);
-                  })
-                  .catch((error) => {
-                    console.log(error);
-                  });
-              }}
-              onFail={(error) => { console.error(error); Alert.alert("Error", error) }}
-              requestUrl={{
-                url:
-                  'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
-                useOnPlatform: 'web',
-              }} // this in only required for use on the web. See https://git.io/JflFv more for details.
-            />
+                  axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
+                    .then((response) => {
+                      //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
+                      parameter.latitude = response.data.result.geometry.location.lat
+                      parameter.longitude = response.data.result.geometry.location.lng
+                      _storeData = async () => {
+                        try {
+                          await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
+                          await AsyncStorage.setItem('currentLocationLng', response.data.result.geometry.location.lng.toString());
+                        } catch (error) {
+                          console.log('Error while storing current location');
+                        }
+                      };
+                      _storeData();
+                      setCanPass(true);
+                    })
+                    .catch((error) => {
+                      console.log(error);
+                    });
+                }}
+                onFail={(error) => { console.error(error); Alert.alert("Error", error) }}
+                requestUrl={{
+                  url:
+                    'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
+                  useOnPlatform: 'web',
+                }} // this in only required for use on the web. See https://git.io/JflFv more for details.
+              />
+            </View>
+            <Text style={styles.text}>Or</Text>
+            <View style={styles.half_h}>
+              <Text style={styles.text}>Choose latitude and longitude</Text>
+              <View style={{flexDirection:'row', flexWrap:'wrap'}}>
+                <View style={styles.half_w}>
+                  <Text>latitude</Text>
+                  <TextInput style={styles.half_w_text_input} 
+                            onChangeText={(text)=> {
+                              if(text.split(".").length == 3){
+                                text = text.substring(0, text.length - 1);
+                              }
+                              parameter.latitude = text
+                            }}
+                            value={parameter.latitude}
+                            keyboardType="numeric"
+                            ></TextInput>
+                </View>
+                <View style={styles.half_w}>
+                  <Text>longitude</Text>
+                  <TextInput style={styles.half_w_text_input} 
+                            onChangeText={(text)=> {
+                              if(text.split(".").length == 3){
+                                text = text.substring(0, text.length - 1);
+                              }
+                              parameter.longitude = text
+                            }}
+                            value={parameter.longitude}
+                            keyboardType="numeric"
+                            ></TextInput>
+                </View>
+              </View>
+            </View>
           </View>
           : <View></View>
         }
@@ -526,7 +564,21 @@ const styles = StyleSheet.create({
   dateStartButton: {
     flex: 1,
     paddingTop: 40,
-  }
+  },
+  half_h: {
+    height: 0.5 * (screenHeight-50)
+  },
+  half_w: {
+    flex: 1, 
+    flexGrow: 1, 
+    flexShrink: 1, 
+    padding: 5,
+    //width: 0.5 * (screenWidth-50)
+  },
+  half_w_text_input: {
+    backgroundColor: 'white', 
+    height: 40
+  },
 });
 
 export default App;
