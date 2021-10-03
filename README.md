@@ -27,9 +27,10 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 *	Add Google Places API Key here
 ![](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/api.png?raw=true)
 *	If you don't use API Key, only latitude and longtitude can be used. You will not able to use the geocoding method.
+*	Our official releases do come with full functionality
 
 
-now the project was completely installed.
+
 
 ## Usage
 *	We use Expo Go on mobile device to test our app
