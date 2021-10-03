@@ -302,9 +302,7 @@ const App = () => {
                   <Text>longitude</Text>
                   <TextInput style={styles.half_w_text_input} 
                             onChangeText={(text)=> {
-                              if(text.split(".").length == 3){
-                                text = text.substring(0, text.length - 1);
-                              }
+                              if(text.split(".").length == 3) text = text.substring(0, text.length - 1)
                               parameter.longitude = text
                             }}
                             value={parameter.longitude}
