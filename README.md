@@ -44,6 +44,7 @@ now the project was completely installed.
 ```
 >we'll get a webpage look like this
 ![service](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/server.png?raw=true)
+##### * Note:  If any errors occur simply dismiss it *
 
 #### 3. Launch The App On Mobile Device
 *	open your mobile camera and scan the QR Code at the bottom left of your web page  
