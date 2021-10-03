@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions, Platform, SafeAreaView } from 'react-native';
+import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions, Platform, SafeAreaView} from 'react-native';
 import Constants from 'expo-constants';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import SelectDropdown from 'react-native-select-dropdown'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LineChart, BarChart } from "react-native-chart-kit";
 import Predict from "./view/predict"
+import { LinearGradient } from 'expo-linear-gradient';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -26,6 +27,7 @@ var parameter = {
   category: '',
 }
 
+const appTitle = "POWER\r\n DATA\r\n INTERFACE";
 var result = []
 
 var onPredict = false
@@ -149,17 +151,6 @@ const App = () => {
 
 
   //parameter about graph
-  const chartData = {
-    labels: ["January", "February", "March", "April", "May", "June"],
-    datasets: [
-      {
-        data: [20, 45, 28, 80, 99, 43],
-        color: (opacity = 1) => `rgba(30,144,255,${opacity})`, // optional
-        strokeWidth: 2 // optional
-      }
-    ],
-    legend: ["Solar Power (W/m^2)"] // optional
-  };
 
   const chartConfig = {
     backgroundGradientFrom: "#FCFCFC",
@@ -183,7 +174,7 @@ const App = () => {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
     const onChange = (event, selectedDate) => {
-      currentDate = selectedDate || date;
+      const currentDate = selectedDate || date;
       setShow(Platform.OS === 'ios');
       setDate(currentDate);
       currentDate = JSON.stringify(currentDate).split('T')[0].substring(1, 20);
@@ -213,7 +204,14 @@ const App = () => {
   const endInput = useInput(1);
 
   return (
-    <View style={styles.container}>
+    <LinearGradient  
+      colors = {currentStep == 0 ? ['#9C51B6', '#5946B2'] : ['#e3ebff', '#e3ebff']} 
+      locations={[0,0.8]}
+      style={{
+      flex: 1,
+    }}>
+    <View style={currentStep == 0 ? styles.firstPageContainer : styles.container}>
+
       {currentStep > 0 && currentStep < totalStep ?
         <View style={{
           justifyContent: 'center',
@@ -226,12 +224,22 @@ const App = () => {
         </View>
         : <View></View>
       }
-      <View style={{ padding: 10, flex: 1 }}>
+      <View style={{ padding: 20, flex: 1 }}>
         {currentStep == 0 ?
-          <ScrollView>
-            <Text style={styles.text}> Menu </Text>
-            <Button onPress={setCurrentStep.bind(this, currentStep + 1)} title="Start" />
-          </ScrollView>
+        
+          <View style = {{
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 80,
+          }}>
+            <Text style={[styles.title,{paddingBottom:100, 
+            fontFamily: Platform.OS === 'android' ? 'sans-serif' : "AmericanTypewriter"}]}> {appTitle} </Text>
+            <TouchableOpacity onPress={setCurrentStep.bind(this, currentStep + 1)} 
+              style = {styles.roundButton}> 
+              <Text style={styles.midText}>Get Started! </Text>
+            </TouchableOpacity>
+          </View>
+        
           : <View></View>
         }
         {currentStep == 1 ?
@@ -493,7 +501,9 @@ const App = () => {
           </View>
         }
       </View>
+    
     </View>
+    </LinearGradient>
   );
 };
 
@@ -506,9 +516,21 @@ const styles = StyleSheet.create({
     //backgroundColor: '#faf2a1', 
     //backgroundColor: '#ecf0f1',
   },
+  firstPageContainer: {
+    flex: 1,
+    padding: 10,
+    paddingTop: Constants.statusBarHeight + 10,
+  },
   text: {
     paddingBottom: 10,
     paddingRight: 10,
+
+  },
+  midText: {
+    textAlign: "center",
+    color: "white",
+    fontWeight: 'bold',
+    fontSize: 30,
   },
   step: {
     flex: 1,
@@ -576,6 +598,29 @@ const styles = StyleSheet.create({
   half_w_text_input: {
     backgroundColor: 'white', 
     height: 40
+  },
+  title: {
+    paddingBottom: 10,
+    paddingRight: 10,
+    textAlign: "center",
+    fontSize: 40,
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    color:'white',
+    textShadowOffset:{width:2, height:5},
+    textShadowColor:'black',
+    textShadowRadius:2,
+    letterSpacing:5
+
+  },
+  roundButton: {
+    width: 200,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 200,
+    backgroundColor: 'orange',
   },
 });
 
