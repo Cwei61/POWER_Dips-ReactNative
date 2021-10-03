@@ -23,7 +23,7 @@ Code for React Native app, written for 2021 NASA Space Apps Challenge: You Are M
 	cd POWER_Dips-ReactNative
     	npm install 
 ```
-#### 6.(Optional) Google Places API Key
+#### 6.Google Places API Key
 *	Add Google Places API Key here
 ![](https://github.com/NASA2021-EcEcursion/POWER_Dips-ReactNative/blob/main/images/api.png?raw=true)
 
