@@ -32,7 +32,7 @@ var parameter = {
   days: 1,
 }
 
-const appTitle = "POWER\r\n DATA\r\n INTERFACE";
+const appTitle = "POWER\r\nDATA\r\nINTERFACE";
 var result = []
 
 
@@ -267,14 +267,16 @@ const App = () => {
             paddingTop: 80,
           }}>
             <Text style={[styles.title,{paddingBottom:100, 
-            fontFamily: Platform.OS === 'android' ? 'sans-serif' : "AmericanTypewriter"}]}> {appTitle} </Text>
+            fontFamily: Platform.OS === 'android' ? 'sans-serif' : "Arial"}]}
+            allowFontScaling = {false}
+            > {appTitle} </Text>
             <TouchableOpacity onPress={setCurrentStep.bind(this, currentStep + 1)} 
               style = {styles.roundButtonTop}> 
-              <Text style={styles.midText}>History Data</Text>
+              <Text style={styles.midText} allowFontScaling = {false}>History Data</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={setCurrentStep.bind(this, 6)} 
               style = {styles.roundButtonBottom}> 
-              <Text style={styles.midTextBlack}>Predict Data</Text>
+              <Text style={styles.midTextBlack} allowFontScaling = {false}>Predict Data</Text>
             </TouchableOpacity>
           </View>
         
@@ -925,7 +927,7 @@ const styles = StyleSheet.create({
     textShadowOffset:{width:2, height:5},
     textShadowColor:'black',
     textShadowRadius:2,
-    letterSpacing:5
+    letterSpacing:5,
 
   },
   roundButtonTop: {
