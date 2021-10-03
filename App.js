@@ -52,10 +52,11 @@ const App = () => {
         api_url = 'https://power.larc.nasa.gov/api/temporal/' + parameter.temporal_avg + '/point?parameters=' + parameter.category + '&community=SB&longitude=' + parameter.longitude + '&latitude=' + parameter.latitude + '&start=' + parameter.start_date + '&end=' + parameter.end_date + '&format=json'
       }
       //api_url = 'https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=T2M&community=SB&longitude=0&latitude=0&format=JSON'
-      alert(api_url)
+      //alert(api_url)
       const response = await fetch(api_url)
+      
       const json_res = await response.json();
-
+      result = JSON.stringify(json_res['messages'])
       let json_data = json_res['properties']['parameter'][parameter.category];
 
       let data = [[], []]
@@ -69,7 +70,8 @@ const App = () => {
       //alert(result)
 
     } catch (error) {
-      result = 'No data found'
+      
+      //result = json_res['messages']//'No data found'
     }
   };
   const predict = async () => {
@@ -78,7 +80,7 @@ const App = () => {
       const json_res = await response.json();
 
     } catch (error) {
-      result = 'No data found'
+      
     }
   };
 
@@ -485,16 +487,17 @@ const App = () => {
           </ScrollView>
           : <View></View>
         }
-        {currentStep == totalStep && result == 'No data found'?
+        {currentStep == totalStep && typeof(result) == "string"?
           <ScrollView>
-            <Text style={styles.text}> Sorry, we can't get this data for you. Try other parameters.</Text>
+            <Text style={styles.text}> Sorry, we have no data for you </Text>
+            <Text style={styles.text}> { result.substring(2, result.length-2) } </Text>
             <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
           </ScrollView>
           : <View></View> 
         }        
-        {currentStep == totalStep  && result != 'No data found'?
+        {currentStep == totalStep  && typeof(result) != "string"?
           <ScrollView>
-            <Text style={styles.text}> Result page</Text>
+            <Text style={styles.text}> Result page </Text>
             <ScrollView horizontal={true} >
               <LineChart style={styles.chart}
                 data={
