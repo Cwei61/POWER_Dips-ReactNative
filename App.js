@@ -11,13 +11,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { LineChart, BarChart } from "react-native-chart-kit";
 import Predict from "./view/predict"
 import { LinearGradient } from 'expo-linear-gradient';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { Component } from 'react';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyB6FP1YtOL8FaD-GC10YnhMd_SIXIYfNkE';
 
-const server = 'https://0.0.0.0/5000'
+const server = 'http://192.168.202.32:5000'
 
 // parameter to call data
 var parameter = {
@@ -35,6 +37,15 @@ var result = []
 
 
 const App = () => {
+
+  let array = [];
+  for(let i = 1; i <= 30; i++) {
+    array.push({label: i.toString(), value: i.toString()});
+  }
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState(array);
+  //const [items, setItems] = useState([{label: 'apple', value: 'apple'}]);
 
   const getData = async () => {
     try {
@@ -79,11 +90,15 @@ const App = () => {
   };
   const predict = async () => {
     try {
-      const response = await fetch(server+'/api?lat='+parameter.latitude+'&lon='+parameter.longitude+'&days='+parameter.days+'')
+      //alert(server+'/api?lat='+parameter.latitude+'&lng='+parameter.longitude+'&days='+parameter.days+'')
+      const response = await fetch(server+'/api?lat='+parameter.latitude+'&lng='+parameter.longitude+'&days='+parameter.days+'')
+      
+      //alert(JSON.stringify(response))
       const json_res = await response.json();
+      result = json_res;
       alert(json_res)
     } catch (error) {
-      
+      Alert.alert(error.toString());
     }
   };
 
@@ -95,11 +110,15 @@ const App = () => {
   const progressBarStyle = () => {
 
     if (currentStep < totalStep) {
+      let step = currentStep;
+      if (step >= totalStep) {
+        step = currentStep - totalStep;
+      }
       return {
         position: 'absolute',
         left: 0,
         top: 0,
-        width: Dimensions.get('window').width * currentStep / (totalStep - 1),
+        width: Dimensions.get('window').width * step / (totalStep - 1),
         height: '100%',
         backgroundColor: '#def86a',
         zIndex: -1,
@@ -227,7 +246,7 @@ const App = () => {
     }}>
     <SafeAreaView style={currentStep == 0 ? styles.firstPageContainer : styles.container}>
 
-      {currentStep > 0 && currentStep < totalStep ?
+      {currentStep > 0 && currentStep != totalStep ?
         <View style={{
           justifyContent: 'center',
           alignItems: 'center',
@@ -235,7 +254,7 @@ const App = () => {
           <View style={progressBarStyle()}></View>
           <Text style={{
             fontSize: 30,
-          }}>{currentStep} / {totalStep - 1} </Text>
+          }}>{currentStep % totalStep} / {totalStep - 1} </Text>
         </View>
         : <View></View>
       }
@@ -250,8 +269,12 @@ const App = () => {
             <Text style={[styles.title,{paddingBottom:100, 
             fontFamily: Platform.OS === 'android' ? 'sans-serif' : "AmericanTypewriter"}]}> {appTitle} </Text>
             <TouchableOpacity onPress={setCurrentStep.bind(this, currentStep + 1)} 
-              style = {styles.roundButton}> 
-              <Text style={styles.midText}>Get Started! </Text>
+              style = {styles.roundButtonTop}> 
+              <Text style={styles.midText}>History Data</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={setCurrentStep.bind(this, 6)} 
+              style = {styles.roundButtonBottom}> 
+              <Text style={styles.midTextBlack}>Predict Data</Text>
             </TouchableOpacity>
           </View>
         
@@ -284,8 +307,21 @@ const App = () => {
                 }}>
                   Lat and Lng
                 </Text>
+                <View style={ placeOrLatLng ? {
+                  borderBottomColor: 'black', 
+                  borderBottomWidth: 2, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                } : {
+                  borderBottomColor: 'grey', 
+                  borderBottomWidth: 1, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                }}/>
               </TouchableOpacity>
-              <TouchableOpacity title="Search place" style={{
+              <TouchableOpacity style={{
                 flex: 1, 
                 paddingLeft: 10, 
                 paddingRight: 10, 
@@ -304,34 +340,20 @@ const App = () => {
                 }}>
                   Search Places
                 </Text>
+                <View style={ !placeOrLatLng ? {
+                  borderBottomColor: 'black', 
+                  borderBottomWidth: 2, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                } : {
+                  borderBottomColor: 'grey', 
+                  borderBottomWidth: 1, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                }}/>
               </TouchableOpacity>
-            </View>
-            <View style={{
-              flexDirection: 'row', 
-              justifyContent: 'space-between', 
-            }}>
-              <View style={ placeOrLatLng ? {
-                borderBottomColor: 'black', 
-                borderBottomWidth: 2, 
-                margin: 8, 
-                flex: 1, 
-              } : {
-                borderBottomColor: 'grey', 
-                borderBottomWidth: 1, 
-                margin: 8, 
-                flex: 1, 
-              }}/>
-              <View style={ !placeOrLatLng ? {
-                borderBottomColor: 'black', 
-                borderBottomWidth: 2, 
-                margin: 8, 
-                flex: 1, 
-              } : {
-                borderBottomColor: 'grey', 
-                borderBottomWidth: 1, 
-                margin: 8, 
-                flex: 1, 
-              }}/>
             </View>
             { placeOrLatLng &&
               <View style={{}}>
@@ -497,7 +519,7 @@ const App = () => {
             <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
           </ScrollView>
           : <View></View> 
-        }        
+        }
         {currentStep == totalStep  && typeof(result) != "string"?
           <ScrollView>
             <Text style={styles.text}> Result page </Text>
@@ -526,6 +548,188 @@ const App = () => {
           </ScrollView>
           : <View></View>
         }
+        { currentStep == totalStep + 1 ?
+          <View style={[styles.step, {}]}>
+            <View style={{
+              flexDirection: 'row',
+              width: '100%', 
+              justifyContent: 'space-around', 
+            }}>
+              <TouchableOpacity style={{
+                flex: 1, 
+                paddingLeft: 10, 
+                paddingRight: 10, 
+                paddingTop: 10, 
+                backgroundColor: 'transparent', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+              }}
+              onPress={() => {
+                setPlaceOrLatLng(true);
+              }}>
+                <Text style={ placeOrLatLng ? {
+                  color: 'black', 
+                  fontWeight: 'bold', 
+                } : {
+                  color: 'grey', 
+                }}>
+                  Lat and Lng
+                </Text>
+                <View style={ placeOrLatLng ? {
+                  borderBottomColor: 'black', 
+                  borderBottomWidth: 2, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                } : {
+                  borderBottomColor: 'grey', 
+                  borderBottomWidth: 1, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                }}/>
+              </TouchableOpacity>
+              <TouchableOpacity style={{
+                flex: 1, 
+                paddingLeft: 10, 
+                paddingRight: 10, 
+                paddingTop: 10, 
+                backgroundColor: 'transparent', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+              }} onPress={() => {
+                setPlaceOrLatLng(false);
+              }}>
+                <Text style={ !placeOrLatLng ? {
+                  color: 'black', 
+                  fontWeight: 'bold', 
+                } : {
+                  color: 'grey', 
+                }}>
+                  Search Places
+                </Text>
+                <View style={ !placeOrLatLng ? {
+                  borderBottomColor: 'black', 
+                  borderBottomWidth: 2, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                } : {
+                  borderBottomColor: 'grey', 
+                  borderBottomWidth: 1, 
+                  margin: 8, 
+                  flex: 1, 
+                  width: '100%', 
+                }}/>
+              </TouchableOpacity>
+            </View>
+            { placeOrLatLng &&
+              <View style={{}}>
+                <Text style={styles.text}>Choose latitude and longitude</Text>
+                <View style={{flexDirection:'row', flexWrap:'wrap'}}>
+                  <View style={styles.half_w}>
+                    <Text>latitude</Text>
+                    <TextInput style={styles.half_w_text_input} 
+                              onChangeText={(text)=> {latitude_s = text}}
+                              ></TextInput>
+                  </View>
+                  <View style={styles.half_w}>
+                    <Text>longitude</Text>
+                    <TextInput style={styles.half_w_text_input} 
+                              onChangeText={(text)=> {longitude_s = text}}
+                              ></TextInput>
+                  </View>
+                </View>
+              </View>
+            }
+            { !placeOrLatLng && 
+              <View style={styles.half_h}>
+                <Text style={styles.text}>Please choose your location: </Text>
+                <GooglePlacesAutocomplete
+                  style={{
+                    paddingRight: 10,
+                    paddingLeft: 10,
+                    height: 20, 
+                  }}
+                  placeholder="Search location"
+                  query={{
+                    key: GOOGLE_PLACES_API_KEY,
+                    language: 'zh-TW', // language of the results
+                    currentLocation: true,
+                    components: 'country:tw',
+                  }}
+                  onPress={(data, details = null) => {
+                    //Alert.alert("Location", JSON.stringify(details.geometry));
+
+                    axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
+                      .then((response) => {
+                        //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
+                        parameter.latitude = response.data.result.geometry.location.lat
+                        parameter.longitude = response.data.result.geometry.location.lng
+                        _storeData = async () => {
+                          try {
+                            await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
+                            await AsyncStorage.setItem('currentLocationLng', response.data.result.geometry.location.lng.toString());
+                          } catch (error) {
+                            console.log('Error while storing current location');
+                          }
+                        };
+                        _storeData();
+                        setCanPass(true);
+                      })
+                      .catch((error) => {
+                        console.log(error);
+                      });
+                  }}
+                  onFail={(error) => { console.error(error); Alert.alert("Error", error) }}
+                  requestUrl={{
+                    url:
+                      'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
+                    useOnPlatform: 'web',
+                  }} // this in only required for use on the web. See https://git.io/JflFv more for details.
+                />
+              </View>
+            }
+          </View>
+          : <View></View>
+        }
+        { currentStep == totalStep + 2 ?
+          <View style={[styles.step, {}]}>
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={(item) => {
+                setItems(item);
+                parameter.days = parseInt(item);
+              }}
+            />
+          </View>
+          : <View></View>
+        }
+        {currentStep == totalStep + 3 && typeof(result) == "string"?
+          <ScrollView>
+            <Text style={styles.text}> Sorry, we have no data for you </Text>
+            <Text style={styles.text}> { result.substring(2, result.length-2) } </Text>
+            <Button onPress={setCurrentStep.bind(this, 0)} title="Back To Menu ->" />
+          </ScrollView>
+          : <View></View> 
+        }
+        {currentStep == totalStep + 3  && typeof(result) != "string"?
+          <ScrollView>
+            <Text style={styles.text}> Result page </Text>
+            <Text style={styles.text}>
+              {result}
+            </Text>
+            <Text style={styles.text}>W/m^2</Text>
+            <Button style={{
+              padding: 10, 
+            }} onPress={setCurrentStep.bind(this, 0)} title="Back To Menu" />
+          </ScrollView>
+          : <View></View>
+        }
       </View>
       <View style={{
         justifyContent: 'space-between',
@@ -534,18 +738,21 @@ const App = () => {
         paddingRight: 20,
         paddingLeft: 20,
       }}>
-        {currentStep > 0 && currentStep < totalStep ?
+        {currentStep > 0 && currentStep != totalStep ?
           <TouchableOpacity style={styles.previousButton}
             onPress={() => {
               if (currentStep > 0) {
                 setCurrentStep(currentStep - 1);
+                if (currentStep == totalStep + 1) {
+                  setCurrentStep(0);
+                }
               }
             }}>
             <Text style={{ color: '#faf2a1' }}>Back</Text>
           </TouchableOpacity> :
           <View></View>
         }
-        {currentStep > 0 && currentStep < totalStep - 1 ?
+        {currentStep > 0 && currentStep != totalStep - 1 && currentStep != totalStep && currentStep != totalStep + 2 ?
           <TouchableOpacity style={canPass ? styles.nextButton : styles.nextButtonDisabled} /*disabled={!canPass}*/
             onPress={() => {
               if (currentStep == 1){
@@ -560,9 +767,7 @@ const App = () => {
                   }
                 }
               }
-              if (currentStep < totalStep) {
-                setCurrentStep(currentStep + 1);
-              }
+              setCurrentStep(currentStep + 1);
               let _retrieveData = async () => {
                 try {
                   const lat = await AsyncStorage.getItem('currentLocationLat');
@@ -584,12 +789,19 @@ const App = () => {
           </TouchableOpacity>
           :
           <View>
-            {currentStep == totalStep - 1 ?
+            {currentStep == totalStep - 1 || currentStep == totalStep + 2 ?
               <TouchableOpacity style={styles.fetchButton}
                 onPress={() => {
-                  getData().then(() => {
-                    setCurrentStep(currentStep + 1)
-                  })
+                  if (currentStep == totalStep - 1) {
+                    getData().then(() => {
+                      setCurrentStep(currentStep + 1);
+                    })
+                  }
+                  else if (currentStep == totalStep + 2) {
+                    predict().then(() => {
+                      setCurrentStep(currentStep + 1);
+                    });
+                  }
                 }}>
                 <Text>Fetch</Text>
               </TouchableOpacity> :
@@ -626,6 +838,12 @@ const styles = StyleSheet.create({
   midText: {
     textAlign: "center",
     color: "white",
+    fontWeight: 'bold',
+    fontSize: 30,
+  },
+  midTextBlack: {
+    textAlign: "center",
+    color: "black",
     fontWeight: 'bold',
     fontSize: 30,
   },
@@ -710,14 +928,31 @@ const styles = StyleSheet.create({
     letterSpacing:5
 
   },
-  roundButton: {
+  roundButtonTop: {
     width: 200,
-    height: 200,
-    justifyContent: 'center',
+    height: 100,
+    justifyContent: 'flex-end',
     alignItems: 'center',
     padding: 10,
-    borderRadius: 200,
+    borderBottomWidth: 0, 
+    borderTopRightRadius: 100, 
+    borderTopLeftRadius: 100, 
     backgroundColor: 'orange',
+    borderBottomWidth: 1, 
+    borderColor: 'transparent', 
+  },
+  roundButtonBottom: {
+    width: 200,
+    height: 100,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: 10,
+    borderTopWidth: 0, 
+    borderBottomRightRadius: 100, 
+    borderBottomLeftRadius: 100, 
+    backgroundColor: '#def86a',
+    borderTopWidth: 1, 
+    borderColor: 'transparent', 
   },
 });
 

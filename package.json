@@ -19,6 +19,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
     "react-native-calendar-picker": "^7.1.2",
     "react-native-chart-kit": "^6.11.0",
+    "react-native-dropdown-picker": "^5.1.28",
     "react-native-google-places-autocomplete": "^2.4.1",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-list-view-select": "^1.0.4",
