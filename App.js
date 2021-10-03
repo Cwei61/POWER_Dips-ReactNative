@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions, Platform, SafeAreaView} from 'react-native';
+import { Text, View, ScrollView, Button, TouchableOpacity, StyleSheet, TextInput, Alert, Dimensions, Platform, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import Constants from 'expo-constants';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useState } from 'react';
@@ -78,6 +78,7 @@ const App = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const totalStep = 5; // 0:menu, 1~4:parm set, 5:result
   const [canPass, setCanPass] = useState(false);
+  const [placeOrLatLng, setPlaceOrLatLng] = useState(true);
 
   const progressBarStyle = () => {
 
@@ -243,82 +244,160 @@ const App = () => {
           : <View></View>
         }
         {currentStep == 1 ?
-          <View style={styles.step}>
-            <View style={styles.half_h}>
-              <Text style={styles.text}>Please choose your location: </Text>
-              <GooglePlacesAutocomplete
-                style={{
-                  paddingRight: 10,
-                  paddingLeft: 10,
-                }}
-                placeholder="Search location"
-                query={{
-                  key: GOOGLE_PLACES_API_KEY,
-                  language: 'zh-TW', // language of the results
-                  currentLocation: true,
-                  components: 'country:tw',
-                }}
-                onPress={(data, details = null) => {
-                  //Alert.alert("Location", JSON.stringify(details.geometry));
-
-                  axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
-                    .then((response) => {
-                      //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
-                      parameter.latitude = response.data.result.geometry.location.lat
-                      parameter.longitude = response.data.result.geometry.location.lng
-                      _storeData = async () => {
-                        try {
-                          await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
-                          await AsyncStorage.setItem('currentLocationLng', response.data.result.geometry.location.lng.toString());
-                        } catch (error) {
-                          console.log('Error while storing current location');
-                        }
-                      };
-                      _storeData();
-                      setCanPass(true);
-                    })
-                    .catch((error) => {
-                      console.log(error);
-                    });
-                }}
-                onFail={(error) => { console.error(error); Alert.alert("Error", error) }}
-                requestUrl={{
-                  url:
-                    'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
-                  useOnPlatform: 'web',
-                }} // this in only required for use on the web. See https://git.io/JflFv more for details.
-              />
+          <View style={[styles.step, {}]}>
+            <View style={{
+              flexDirection: 'row',
+              width: '100%', 
+              justifyContent: 'space-around', 
+            }}>
+              <TouchableOpacity style={{
+                flex: 1, 
+                paddingLeft: 10, 
+                paddingRight: 10, 
+                paddingTop: 10, 
+                backgroundColor: 'transparent', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+              }}
+              onPress={() => {
+                setPlaceOrLatLng(true);
+              }}>
+                <Text style={ placeOrLatLng ? {
+                  color: 'black', 
+                  fontWeight: 'bold', 
+                } : {
+                  color: 'grey', 
+                }}>
+                  Lat and Lng
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity title="Search place" style={{
+                flex: 1, 
+                paddingLeft: 10, 
+                paddingRight: 10, 
+                paddingTop: 10, 
+                backgroundColor: 'transparent', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+              }} onPress={() => {
+                setPlaceOrLatLng(false);
+              }}>
+                <Text style={ !placeOrLatLng ? {
+                  color: 'black', 
+                  fontWeight: 'bold', 
+                } : {
+                  color: 'grey', 
+                }}>
+                  Search Places
+                </Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.text}>Or</Text>
-            <View style={styles.half_h}>
-              <Text style={styles.text}>Choose latitude and longitude</Text>
-              <View style={{flexDirection:'row', flexWrap:'wrap'}}>
-                <View style={styles.half_w}>
-                  <Text>latitude</Text>
-                  <TextInput style={styles.half_w_text_input} 
-                            onChangeText={(text)=> {
-                              if(text.split(".").length == 3){
-                                text = text.substring(0, text.length - 1);
-                              }
-                              parameter.latitude = text
-                            }}
-                            value={parameter.latitude}
-                            keyboardType="numeric"
-                            ></TextInput>
-                </View>
-                <View style={styles.half_w}>
-                  <Text>longitude</Text>
-                  <TextInput style={styles.half_w_text_input} 
-                            onChangeText={(text)=> {
-                              if(text.split(".").length == 3) text = text.substring(0, text.length - 1)
-                              parameter.longitude = text
-                            }}
-                            value={parameter.longitude}
-                            keyboardType="numeric"
-                            ></TextInput>
+            <View style={{
+              flexDirection: 'row', 
+              justifyContent: 'space-between', 
+            }}>
+              <View style={ placeOrLatLng ? {
+                borderBottomColor: 'black', 
+                borderBottomWidth: 2, 
+                margin: 8, 
+                flex: 1, 
+              } : {
+                borderBottomColor: 'grey', 
+                borderBottomWidth: 1, 
+                margin: 8, 
+                flex: 1, 
+              }}/>
+              <View style={ !placeOrLatLng ? {
+                borderBottomColor: 'black', 
+                borderBottomWidth: 2, 
+                margin: 8, 
+                flex: 1, 
+              } : {
+                borderBottomColor: 'grey', 
+                borderBottomWidth: 1, 
+                margin: 8, 
+                flex: 1, 
+              }}/>
+            </View>
+            { placeOrLatLng &&
+              <View style={{}}>
+                <Text style={styles.text}>Choose latitude and longitude</Text>
+                <View style={{flexDirection:'row', flexWrap:'wrap'}}>
+                  <View style={styles.half_w}>
+                    <Text>latitude</Text>
+                    <TextInput style={styles.half_w_text_input} 
+                              onChangeText={(text)=> {
+                                if(text.split(".").length == 3){
+                                  text = text.substring(0, text.length - 1);
+                                }
+                                parameter.latitude = parseInt(text)
+                              }}
+                              value={parameter.latitude}
+                              keyboardType="numeric"
+                              ></TextInput>
+                  </View>
+                  <View style={styles.half_w}>
+                    <Text>longitude</Text>
+                    <TextInput style={styles.half_w_text_input} 
+                              onChangeText={(text)=> {
+                                if(text.split(".").length == 3) text = text.substring(0, text.length - 1)
+                                parameter.longitude = parseInt(text)
+                              }}
+                              value={parameter.longitude}
+                              keyboardType="numeric"
+                              ></TextInput>
+                  </View>
                 </View>
               </View>
-            </View>
+            }
+            { !placeOrLatLng && 
+              <View style={styles.half_h}>
+                <Text style={styles.text}>Please choose your location: </Text>
+                <GooglePlacesAutocomplete
+                  style={{
+                    paddingRight: 10,
+                    paddingLeft: 10,
+                    height: 20, 
+                  }}
+                  placeholder="Search location"
+                  query={{
+                    key: GOOGLE_PLACES_API_KEY,
+                    language: 'zh-TW', // language of the results
+                    currentLocation: true,
+                    components: 'country:tw',
+                  }}
+                  onPress={(data, details = null) => {
+                    //Alert.alert("Location", JSON.stringify(details.geometry));
+
+                    axios.get('https://maps.googleapis.com/maps/api/place/details/json?place_id=' + details.place_id + '&fields=name,geometry%2Crating%2Cformatted_phone_number&key=' + GOOGLE_PLACES_API_KEY)
+                      .then((response) => {
+                        //Alert.alert("GEOMETRY", response.data.result.geometry.location.lat.toString() + ' / ' + response.data.result.geometry.location.lng.toString());
+                        parameter.latitude = response.data.result.geometry.location.lat
+                        parameter.longitude = response.data.result.geometry.location.lng
+                        _storeData = async () => {
+                          try {
+                            await AsyncStorage.setItem('currentLocationLat', response.data.result.geometry.location.lat.toString());
+                            await AsyncStorage.setItem('currentLocationLng', response.data.result.geometry.location.lng.toString());
+                          } catch (error) {
+                            console.log('Error while storing current location');
+                          }
+                        };
+                        _storeData();
+                        setCanPass(true);
+                      })
+                      .catch((error) => {
+                        console.log(error);
+                      });
+                  }}
+                  onFail={(error) => { console.error(error); Alert.alert("Error", error) }}
+                  requestUrl={{
+                    url:
+                      'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
+                    useOnPlatform: 'web',
+                  }} // this in only required for use on the web. See https://git.io/JflFv more for details.
+                />
+              </View>
+            }
           </View>
           : <View></View>
         }
@@ -326,6 +405,7 @@ const App = () => {
           <ScrollView style={[styles.step, {}]}>
             <Text style={styles.text}>Please choose a Temporal Resolution: </Text>
             <SelectDropdown
+              dropdownStyle={{width: screenWidth-30}}
               data={period_selection}
               onSelect={(selectedItem, index) => {
                 parameter.temporal_avg = selectedItem.toLowerCase();
@@ -447,7 +527,9 @@ const App = () => {
       <View style={{
         justifyContent: 'space-between',
         flexDirection: 'row',
-        margin: 20,
+        paddingBottom: 20,
+        paddingRight: 20,
+        paddingLeft: 20,
       }}>
         {currentStep > 0 && currentStep < totalStep ?
           <TouchableOpacity style={styles.previousButton}
@@ -466,7 +548,7 @@ const App = () => {
               if (currentStep < totalStep) {
                 setCurrentStep(currentStep + 1);
               }
-              _retrieveData = async () => {
+              let _retrieveData = async () => {
                 try {
                   const lat = await AsyncStorage.getItem('currentLocationLat');
                   if (lat == null) {
